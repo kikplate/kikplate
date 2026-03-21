@@ -28,6 +28,7 @@ type Env struct {
 	DBName         string `mapstructure:"DB_NAME"`
 	JWTSecret      string `mapstructure:"JWT_SECRET"`
 	AuthHeader     string `mapstructure:"AUTH_HEADER"`
+	FrontendURL    string
 	OAuthProviders []OAuthProvider
 }
 
@@ -118,6 +119,11 @@ func NewEnv() Env {
 	env.AuthHeader = firstNonEmpty(
 		getConfigValue("server.auth_header", "", ""),
 		os.Getenv("AUTH_HEADER"),
+	)
+	env.FrontendURL = firstNonEmpty(
+		getConfigValue("server.frontend_url", "", ""),
+		os.Getenv("FRONTEND_URL"),
+		"http://localhost:3000",
 	)
 
 	var providers []OAuthProvider

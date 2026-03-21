@@ -295,6 +295,15 @@
           "event": [{ "listen": "test", "script": { "exec": ["pm.test(\"Status is 404\", () => pm.response.to.have.status(404));", "pm.test(\"Has error\", () => { const body = pm.response.json(); pm.expect(body.error).to.equal(\"not found\"); });"] } }]
         },
         {
+          "name": "Get Plate Stats ",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/plates/stats", "host": ["{{base_url}}"], "path": ["plates", "stats"] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test(\"Status is 200\", () => pm.response.to.have.status(200));", "pm.test(\"Has stats\", () => { const body = pm.response.json(); pm.expect(body).to.have.property(\"total\"); });"] } }]
+        },
+        {
           "name": "Update Plate",
           "request": {
             "method": "PATCH",

@@ -60,7 +60,14 @@ var _ auth.AuthService = (*mockAuthService)(nil)
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 func newHandler(svc auth.AuthService) handlers.AuthHandler {
-	return handlers.NewAuthHandler(svc, lib.GetLogger())
+	return handlers.NewAuthHandler(svc, lib.GetLogger(), lib.Env{
+		OAuthProviders: []lib.OAuthProvider{
+			{
+				Name:        "github",
+				RedirectURL: "http://localhost:3000/auth/callback",
+			},
+		},
+	})
 }
 
 func fakeResult() *auth.AuthResult {
@@ -367,9 +374,26 @@ func TestOAuthCallback_Success(t *testing.T) {
 
 	newHandler(svc).OAuthCallback(rec, req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
-	body := decodeBody(t, rec)
-	assert.Equal(t, result.Token, body["token"])
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Contains(t, rec.Header().Get("Location"), "/auth/callback?token=")
+}
+
+func TestOAuthCallback_OAuthFailed(t *testing.T) {
+	svc := &mockAuthService{
+		oauthCallbackFn: func(_ context.Context, _ auth.OAuthCallbackInput) (*auth.AuthResult, error) {
+			return nil, auth.ErrOAuthFailed
+		},
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/github/callback?code=bad-code&state=test-state", nil)
+	req = routeRequest(req, "provider", "github")
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "test-state"})
+	rec := httptest.NewRecorder()
+
+	newHandler(svc).OAuthCallback(rec, req)
+
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Contains(t, rec.Header().Get("Location"), "/login?error=oauth_failed")
 }
 
 func TestOAuthCallback_MissingCode(t *testing.T) {
@@ -411,24 +435,6 @@ func TestOAuthCallback_MissingStateCookie(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	assert.Equal(t, "invalid oauth state", decodeBody(t, rec)["error"])
-}
-
-func TestOAuthCallback_OAuthFailed(t *testing.T) {
-	svc := &mockAuthService{
-		oauthCallbackFn: func(_ context.Context, _ auth.OAuthCallbackInput) (*auth.AuthResult, error) {
-			return nil, auth.ErrOAuthFailed
-		},
-	}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/github/callback?code=bad-code&state=test-state", nil)
-	req = routeRequest(req, "provider", "github")
-	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "test-state"})
-	rec := httptest.NewRecorder()
-
-	newHandler(svc).OAuthCallback(rec, req)
-
-	assert.Equal(t, http.StatusBadGateway, rec.Code)
-	assert.Equal(t, auth.ErrOAuthFailed.Error(), decodeBody(t, rec)["error"])
 }
 
 // ─── content-type and error leaking ──────────────────────────────────────────

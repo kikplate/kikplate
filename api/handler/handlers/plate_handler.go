@@ -330,3 +330,12 @@ func (h PlateHandler) RevokeBadge(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h PlateHandler) Stats(w http.ResponseWriter, r *http.Request) {
+	stats, err := h.plates.GetStats(r.Context())
+	if err != nil {
+		respondServiceError(w, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, stats)
+}

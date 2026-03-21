@@ -35,6 +35,7 @@ type mockPlateService struct {
 	rejectFn           func(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID) error
 	grantBadgeFn       func(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID, badgeSlug string, reason *string) error
 	revokeBadgeFn      func(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID, badgeSlug string) error
+	getStatsFn         func(ctx context.Context) (*repository.PlateStats, error)
 }
 
 func (m *mockPlateService) SubmitFile(ctx context.Context, accountID uuid.UUID, input plateservice.SubmitFileInput) (*model.Plate, error) {
@@ -119,6 +120,12 @@ func (m *mockPlateService) RevokeBadge(ctx context.Context, plateID uuid.UUID, a
 		return nil
 	}
 	return m.revokeBadgeFn(ctx, plateID, adminAccountID, badgeSlug)
+}
+func (m *mockPlateService) GetStats(ctx context.Context) (*repository.PlateStats, error) {
+	if m.getStatsFn == nil {
+		return &repository.PlateStats{}, nil
+	}
+	return m.getStatsFn(ctx)
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────

@@ -29,7 +29,18 @@ func (s *ServeCommand) Run() lib.CommandRunner {
 	) {
 		handler.Mux.Use(middleware.Authenticate(env, logger))
 		handler.Mux.Use(middleware.HeaderAuth(env, accountRepo, logger))
-
+		handler.Mux.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+				if r.Method == http.MethodOptions {
+					w.WriteHeader(http.StatusNoContent)
+					return
+				}
+				next.ServeHTTP(w, r)
+			})
+		})
 		r.Setup()
 
 		addr := fmt.Sprintf(":%s", env.ServerPort)

@@ -30,6 +30,12 @@ type PlateSyncState struct {
 	VerifiedAt          *time.Time
 	Metadata            []byte
 }
+type PlateStats struct {
+	TotalPlates       int64 `json:"total_plates"`
+	TotalContributors int64 `json:"total_contributors"`
+	TotalCategories   int64 `json:"total_categories"`
+	TotalUses         int64 `json:"total_uses"`
+}
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
 	GetByID(ctx context.Context, id uuid.UUID) (*model.User, error)
@@ -65,6 +71,7 @@ type PlateRepository interface {
 	IncrementUseCount(ctx context.Context, id uuid.UUID) error
 	UpdateSyncState(ctx context.Context, id uuid.UUID, state PlateSyncState) error
 	ListDueForSync(ctx context.Context, limit int) ([]*model.Plate, error)
+	GetStats(ctx context.Context) (*PlateStats, error)
 }
 
 type PlateMemberRepository interface {

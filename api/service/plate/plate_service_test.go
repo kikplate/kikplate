@@ -85,6 +85,10 @@ func (m *mockPlateRepo) ListDueForSync(_ context.Context, limit int) ([]*model.P
 	return nil, nil
 }
 
+func (m *mockPlateRepo) GetStats(_ context.Context) (*repository.PlateStats, error) {
+	return &repository.PlateStats{}, nil
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 type mockTagRepo struct {

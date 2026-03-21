@@ -73,6 +73,28 @@ func NewDatabase(env Env, logger Logger) Database {
 
 	logger.Info("Database migrations applied")
 
+	if err := db.Exec(`
+    ALTER TABLE plate
+    ADD COLUMN IF NOT EXISTS search_vector tsvector
+    GENERATED ALWAYS AS (
+        to_tsvector('english',
+            coalesce(name, '') || ' ' ||
+            coalesce(description, '')
+        )
+    ) STORED
+`).Error; err != nil {
+		logger.Warnf("search_vector: %v", err)
+	}
+
+	if err := db.Exec(`
+    CREATE INDEX IF NOT EXISTS idx_plate_search
+    ON plate USING GIN(search_vector)
+`).Error; err != nil {
+		logger.Warnf("idx_plate_search: %v", err)
+	}
+
+	logger.Info("Extended migrations applied")
+
 	return Database{
 		DB: db,
 	}

@@ -13,15 +13,18 @@ import (
 type AuthHandler struct {
 	authService auth.AuthService
 	logger      lib.Logger
+	env         lib.Env
 }
 
 func NewAuthHandler(
 	authService auth.AuthService,
 	logger lib.Logger,
+	env lib.Env,
 ) AuthHandler {
 	return AuthHandler{
 		authService: authService,
 		logger:      logger,
+		env:         env,
 	}
 }
 
@@ -121,6 +124,8 @@ func (h AuthHandler) OAuthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	frontendBase := h.env.FrontendURL
+
 	result, err := h.authService.OAuthCallback(r.Context(), auth.OAuthCallbackInput{
 		Provider: provider,
 		Code:     code,
@@ -128,14 +133,11 @@ func (h AuthHandler) OAuthCallback(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		h.logger.Errorf("oauth callback failed: %v", err)
-		respondServiceError(w, err)
+		http.Redirect(w, r, frontendBase+"/login?error=oauth_failed", http.StatusTemporaryRedirect)
 		return
 	}
 
-	respondJSON(w, http.StatusOK, map[string]any{
-		"token":   result.Token,
-		"account": result.Account,
-	})
+	http.Redirect(w, r, frontendBase+"/auth/callback?token="+result.Token, http.StatusTemporaryRedirect)
 }
 
 func (h AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
@@ -153,4 +155,15 @@ func (h AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJSON(w, http.StatusOK, result)
+}
+
+func (h AuthHandler) Providers(w http.ResponseWriter, r *http.Request) {
+	providers := h.env.OAuthProviders
+	names := make([]string, 0, len(providers))
+	for _, p := range providers {
+		names = append(names, p.Name)
+	}
+	respondJSON(w, http.StatusOK, map[string]any{
+		"providers": names,
+	})
 }

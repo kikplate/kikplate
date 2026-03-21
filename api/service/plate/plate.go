@@ -46,4 +46,5 @@ type PlateService interface {
 	Reject(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID) error
 	GrantBadge(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID, badgeSlug string, reason *string) error
 	RevokeBadge(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID, badgeSlug string) error
+	GetStats(ctx context.Context) (*repository.PlateStats, error)
 }

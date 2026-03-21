@@ -482,6 +482,10 @@ func extractRepoPath(repoURL string) string {
 	return repoURL
 }
 
+func (s *plateService) GetStats(ctx context.Context) (*repository.PlateStats, error) {
+	return s.plates.GetStats(ctx)
+}
+
 func slugify(name string) string {
 	slug := strings.ToLower(name)
 	slug = strings.ReplaceAll(slug, " ", "-")
@@ -508,4 +512,5 @@ func NewPlateServiceForTest(
 		users:        users,
 		logger:       logger,
 	}
+
 }

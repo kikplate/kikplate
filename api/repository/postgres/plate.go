@@ -128,6 +128,30 @@ func (r *plateRepository) UpdateSyncState(ctx context.Context, id uuid.UUID, sta
 			"metadata":             state.Metadata,
 		}).Error
 }
+func (r *plateRepository) GetStats(ctx context.Context) (*repository.PlateStats, error) {
+	var stats repository.PlateStats
+
+	r.db.WithContext(ctx).Model(&model.Plate{}).
+		Where("status = ?", model.PlateStatusApproved).
+		Count(&stats.TotalPlates)
+
+	r.db.WithContext(ctx).Model(&model.Plate{}).
+		Where("status = ?", model.PlateStatusApproved).
+		Distinct("owner_id").
+		Count(&stats.TotalContributors)
+
+	r.db.WithContext(ctx).Model(&model.Plate{}).
+		Where("status = ?", model.PlateStatusApproved).
+		Distinct("category").
+		Count(&stats.TotalCategories)
+
+	r.db.WithContext(ctx).Model(&model.Plate{}).
+		Where("status = ?", model.PlateStatusApproved).
+		Select("coalesce(sum(use_count), 0)").
+		Scan(&stats.TotalUses)
+
+	return &stats, nil
+}
 
 func (r *plateRepository) ListDueForSync(ctx context.Context, limit int) ([]*model.Plate, error) {
 	var plates []*model.Plate

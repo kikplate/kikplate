@@ -35,6 +35,7 @@ func (r AuthRoutes) Setup() {
 		router.Post("/login", r.handler.LoginLocal)
 		router.Get("/{provider}/redirect", r.handler.OAuthRedirect)
 		router.Get("/{provider}/callback", r.handler.OAuthCallback)
+		router.Get("/providers", r.handler.Providers)
 	})
 
 	// protected routes

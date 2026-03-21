@@ -30,5 +30,6 @@ func (r PlateRoutes) Setup() {
 		m.Post("/{id}/reject", r.handler.Reject)
 		m.Post("/{id}/badges", r.handler.GrantBadge)
 		m.Delete("/{id}/badges/{slug}", r.handler.RevokeBadge)
+		m.Get("/stats", r.handler.Stats)
 	})
 }

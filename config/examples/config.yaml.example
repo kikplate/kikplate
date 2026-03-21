@@ -1,12 +1,30 @@
 
 database:
   host: localhost
-  port: 8920
-  database: crossview
+  port: 5432
+  database: kikplate
   username: postgres
   password: password
-  
+
 server:
   port: 3001
   log:
     level: info
+
+sso:
+  providers:
+    - name: github
+      client_id: your_github_client_id
+      client_secret: your_github_client_secret
+      redirect_url: http://localhost:3001/auth/github/callback
+      scopes:
+        - read:user
+        - user:email
+    - name: google
+      client_id: your_google_client_id
+      client_secret: your_google_client_secret
+      redirect_url: http://localhost:3001/auth/google/callback
+      scopes:
+        - openid
+        - email
+        - profile
