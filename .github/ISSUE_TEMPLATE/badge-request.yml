@@ -1,0 +1,93 @@
+name: "Badge Request"
+description: "Request a badge for your plate (boilerplate)"
+title: "[Badge Request]: "
+labels: ["badge-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for requesting a badge! Please fill in the details below so we can review your plate.
+
+  - type: input
+    id: plate-slug
+    attributes:
+      label: Plate Slug
+      description: The slug of your plate on Kikplate (e.g. `my-awesome-plate`)
+      placeholder: my-awesome-plate
+    validations:
+      required: true
+
+  - type: input
+    id: plate-url
+    attributes:
+      label: Plate URL
+      description: Full URL to your plate on Kikplate
+      placeholder: https://kikplate.com/plates/my-awesome-plate
+    validations:
+      required: true
+
+  - type: input
+    id: repository-url
+    attributes:
+      label: Repository URL
+      description: Link to the source repository
+      placeholder: https://github.com/user/repo
+    validations:
+      required: true
+
+  - type: dropdown
+    id: badge
+    attributes:
+      label: Badge Requested
+      description: Which badge are you requesting?
+      options:
+        - Official — Officially recognized and maintained by the project owners
+        - Production Ready — Ready for production environments with high reliability
+        - Security Friendly — Follows security best practices and has strong security measures
+        - Clean — Clean and well-organized codebase
+        - Clean Code — Follows clean code principles and best practices
+        - Documented — Well-documented with clear and comprehensive documentation
+        - Well Tested — Comes with comprehensive unit, integration, and end-to-end tests
+        - Docker Ready — Fully containerized and easy to run with Docker
+        - Cloud Native — Designed for cloud-native environments and orchestration
+        - Microservice — Built using microservices architecture
+        - Active — Actively maintained with regular updates
+        - Beginner Friendly — Easy to understand and get started for beginners
+        - Community Pick — Highly recommended and loved by the developer community
+    validations:
+      required: true
+
+  - type: textarea
+    id: justification
+    attributes:
+      label: Why does this plate deserve this badge?
+      description: Provide evidence or reasoning. For example, link to tests, docs, Dockerfile, CI/CD config, security audits, etc.
+      placeholder: |
+        - The project has 95% test coverage (link to CI report)
+        - All endpoints are documented in /docs
+        - Dockerfile and docker-compose.yaml included
+    validations:
+      required: true
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Supporting Links
+      description: Any additional links that support your request (CI dashboards, docs site, security reports, etc.)
+      placeholder: |
+        - https://codecov.io/gh/user/repo
+        - https://user.github.io/repo/docs
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: The plate is publicly accessible on Kikplate
+          required: true
+        - label: The repository is publicly accessible
+          required: true
+        - label: I am the owner or a maintainer of this plate
+          required: true
