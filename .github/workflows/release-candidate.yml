@@ -1,9 +1,6 @@
 name: Release Candidate
 
 on:
-  push:
-    branches:
-      - pre-release
   workflow_dispatch:
     inputs:
       ref:
