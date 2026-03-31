@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Search, GitBranch, Loader2, Github, Linkedin } from "lucide-react"
+import { Search, GitBranch, Loader2, Github, Linkedin, ChevronDown, HelpCircle } from "lucide-react"
 import { usePlates, useStats } from "@/src/presentation/hooks/usePlates"
 import { useConfig } from "@/src/presentation/hooks/useConfig"
 import { formatCount } from "@/src/presentation/utils/plateUtils"
@@ -24,6 +24,7 @@ export function HeroSearch() {
   const [query, setQuery] = useState("")
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [showHints, setShowHints] = useState(false)
 
   const { data, isLoading } = usePlates({ search: query, limit: 6 })
   const { data: stats } = useStats()
@@ -71,6 +72,7 @@ export function HeroSearch() {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
+        setShowHints(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
@@ -78,142 +80,207 @@ export function HeroSearch() {
   }, [])
 
   return (
-    <div className="dark relative min-h-[calc(100vh-3.5rem)] bg-background flex flex-col items-center justify-center gap-8 px-4 text-center">
+    <div className="relative min-h-[calc(100vh-12rem)] bg-background flex flex-col items-center justify-center px-4 text-center">
 
-      <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground max-w-3xl leading-tight">
-        {titleLines.map((line, idx) => (
-          <span key={`${line}-${idx}`}>
-            {line}
-            {idx < titleLines.length - 1 && <br />}
-          </span>
-        ))}
-      </h1>
+      <div className="flex flex-col items-center gap-6 w-full max-w-6xl">
 
-      <div className="w-full max-w-2xl" ref={containerRef}>
-        <div className="relative">
-          <div className="flex items-center border border-border bg-card px-4 gap-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20 transition-all">
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            <input
-              className="h-12 w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-              placeholder="Search Plates..."
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value)
-                setOpen(true)
-              }}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setOpen(true)}
-            />
-            {isLoading && query.trim().length > 1 && (
-              <Loader2 className="h-4 w-4 text-muted-foreground animate-spin shrink-0" />
-            )}
-          </div>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground w-full leading-[1.1]">
+          {titleLines.map((line, idx) => (
+            <span key={`${line}-${idx}`}>
+              {line}
+              {idx < titleLines.length - 1 && <br />}
+            </span>
+          ))}
+        </h1>
 
-          {showDropdown && (
-            <div className="absolute top-full left-0 right-0 z-50 border border-border border-t-0 bg-card shadow-none">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-6">
-                  <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+        <p className="text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed">
+          Discover, share and scaffold production-ready project templates. Built by the community, for the community.
+        </p>
+
+        <div className="w-full max-w-4xl mt-2" ref={containerRef}>
+          <div className="relative">
+            <div className="flex items-center border border-border bg-card px-4 gap-3 focus-within:border-foreground/30 focus-within:ring-1 focus-within:ring-foreground/10 transition-all">
+              <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+              <input
+                className="h-14 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+                placeholder="Search plates... e.g. golang clean architecture"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value)
+                  setOpen(true)
+                  setShowHints(false)
+                }}
+                onKeyDown={handleKeyDown}
+                onFocus={() => setOpen(true)}
+              />
+              {isLoading && query.trim().length > 1 && (
+                <Loader2 className="h-4 w-4 text-muted-foreground animate-spin shrink-0" />
+              )}
+              <button
+                type="button"
+                onClick={() => setShowHints(!showHints)}
+                className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Search tips"
+              >
+                <HelpCircle className="h-4 w-4" />
+              </button>
+            </div>
+
+            {showHints && (
+              <div className="absolute top-full left-0 right-0 z-50 border border-border border-t-0 bg-card shadow-lg shadow-black/10 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Search tips</p>
+                  <button onClick={() => setShowHints(false)} className="text-xs text-muted-foreground hover:text-foreground transition-colors">Close</button>
                 </div>
-              ) : results.length === 0 ? (
-                <div className="px-4 py-6 text-center">
-                  <p className="text-sm text-muted-foreground">No plates found for &quot;{query}&quot;</p>
-                  <button
-                    onClick={() => handleSearch(query)}
-                    className="mt-2 text-xs text-foreground underline underline-offset-4"
-                  >
-                    Search all plates →
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="py-1">
-                    {results.map((plate) => (
-                      <Link
-                        key={plate.id}
-                        href={`/plates/${plate.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="flex items-start gap-3 px-4 py-3 hover:bg-muted transition-colors"
-                      >
-                        <div className="mt-0.5 text-muted-foreground shrink-0">
-                          <GitBranch className="h-4 w-4" />
-                        </div>
-                        <div className="text-left min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{plate.name}</p>
-                          {plate.description && (
-                            <p className="text-xs text-muted-foreground truncate mt-0.5">{plate.description}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground/60 mt-0.5 capitalize">{plate.category}</p>
-                        </div>
-                      </Link>
-                    ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs font-medium text-foreground">By name or keyword</p>
+                      <p className="text-xs text-muted-foreground mt-0.5"><code className="bg-muted px-1 py-0.5">golang starter</code></p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-foreground">By framework</p>
+                      <p className="text-xs text-muted-foreground mt-0.5"><code className="bg-muted px-1 py-0.5">spring-boot</code> <code className="bg-muted px-1 py-0.5">nestjs</code></p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-foreground">By language</p>
+                      <p className="text-xs text-muted-foreground mt-0.5"><code className="bg-muted px-1 py-0.5">python</code> <code className="bg-muted px-1 py-0.5">java</code> <code className="bg-muted px-1 py-0.5">go</code></p>
+                    </div>
                   </div>
-                  <div className="border-t border-border px-4 py-2.5">
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs font-medium text-foreground">Exclude words</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Use <code className="bg-muted px-1 py-0.5">-</code> prefix: <code className="bg-muted px-1 py-0.5">nodejs -express</code></p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-foreground">By description</p>
+                      <p className="text-xs text-muted-foreground mt-0.5"><code className="bg-muted px-1 py-0.5">clean architecture</code> <code className="bg-muted px-1 py-0.5">docker-compose</code></p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-foreground">Combine terms</p>
+                      <p className="text-xs text-muted-foreground mt-0.5"><code className="bg-muted px-1 py-0.5">react typescript starter</code></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showDropdown && (
+              <div className="absolute top-full left-0 right-0 z-50 border border-border border-t-0 bg-card shadow-lg shadow-black/20">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                  </div>
+                ) : results.length === 0 ? (
+                  <div className="px-4 py-6 text-center">
+                    <p className="text-sm text-muted-foreground">No plates found for &quot;{query}&quot;</p>
                     <button
                       onClick={() => handleSearch(query)}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      className="mt-2 text-xs text-foreground underline underline-offset-4"
                     >
-                      See all results for &quot;{query}&quot; →
+                      Search all plates →
                     </button>
                   </div>
-                </>
-              )}
-            </div>
-          )}
+                ) : (
+                  <>
+                    <div className="py-1">
+                      {results.map((plate) => (
+                        <Link
+                          key={plate.id}
+                          href={`/plates/${plate.slug}`}
+                          onClick={() => setOpen(false)}
+                          className="flex items-start gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                        >
+                          <div className="mt-0.5 text-muted-foreground shrink-0">
+                            <GitBranch className="h-4 w-4" />
+                          </div>
+                          <div className="text-left min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{plate.name}</p>
+                            {plate.description && (
+                              <p className="text-xs text-muted-foreground truncate mt-0.5">{plate.description}</p>
+                            )}
+                            <p className="text-xs text-muted-foreground/60 mt-0.5 capitalize">{plate.category}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="border-t border-border px-4 py-2.5">
+                      <button
+                        onClick={() => handleSearch(query)}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        See all results for &quot;{query}&quot; →
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        <p className="mt-2 text-xs text-muted-foreground">
-          Tip: Use <code className="font-mono">-</code> to exclude words from your search. Example:{" "}
-          <span className="font-semibold text-foreground">nodejs-starter</span>
-        </p>
-      </div>
-
-      <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
-        {sampleQueries.map((q) => (
-          <button
-            key={q}
-            onClick={() => handleSearch(q)}
-            className="px-3 py-1 text-xs border border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-          >
-            {q}
-          </button>
-        ))}
-      </div>
-
-      <div className="w-full max-w-xl grid grid-cols-4 gap-2">
-        {socialItems.map((item, idx) => (
-          <Link
-            key={`${item.type}-${idx}`}
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 border border-border bg-card px-3 py-2 text-xs text-foreground transition-colors hover:bg-muted"
-          >
-            {socialIcon(item.type)}
-            <span>{socialLabel(item.type)}</span>
+        <p className="text-sm text-muted-foreground">
+          You can also{" "}
+          <Link href="/explore" className="text-foreground underline underline-offset-4 hover:text-primary transition-colors">
+            browse all plates
           </Link>
-        ))}
+          {" "}or try one of the sample queries:
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
+          {sampleQueries.map((q) => (
+            <button
+              key={q}
+              onClick={() => handleSearch(q)}
+              className="px-3 py-1.5 text-xs border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-card transition-all"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-6 mt-4">
+          <div className="flex items-center gap-8 border border-border bg-card/50 px-8 py-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold tabular-nums text-foreground">{stats ? formatCount(stats.total_plates) : "—"}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">plates</p>
+            </div>
+            <div className="h-8 w-px bg-border" />
+            <div className="text-center">
+              <p className="text-2xl font-bold tabular-nums text-foreground">{stats ? formatCount(stats.total_contributors) : "—"}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">contributors</p>
+            </div>
+            <div className="h-8 w-px bg-border" />
+            <div className="text-center">
+              <p className="text-2xl font-bold tabular-nums text-foreground">{stats ? formatCount(stats.total_categories) : "—"}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">categories</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 mt-2">
+          <p className="text-xs text-muted-foreground">KikPlate is an Open Source project</p>
+          <span className="text-muted-foreground/30">|</span>
+          <div className="flex items-center gap-2">
+            {socialItems.map((item, idx) => (
+              <Link
+                key={`footer-${item.type}-${idx}`}
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-8 w-8 border border-border text-muted-foreground transition-colors hover:text-foreground hover:bg-card"
+                title={socialLabel(item.type)}
+              >
+                {socialIcon(item.type)}
+              </Link>
+            ))}
+          </div>
+        </div>
+
       </div>
 
-      <div className="flex items-center gap-8 text-center">
-        <div>
-          <p className="text-3xl font-bold text-foreground">{stats ? formatCount(stats.total_plates) : "-"}</p>
-          <p className="text-sm text-muted-foreground">plates</p>
-        </div>
-        <div className="h-10 w-px bg-border" />
-        <div>
-          <p className="text-3xl font-bold text-foreground">{stats ? formatCount(stats.total_contributors) : "-"}</p>
-          <p className="text-sm text-muted-foreground">contributors</p>
-        </div>
-      </div>
-
-      <p className="text-sm text-muted-foreground">
-        KikPlate Hub is an Open Source project
-      </p>
-
-      <div className="absolute bottom-8 flex flex-col items-center gap-1 text-muted-foreground/40">
-        <p className="text-xs">scroll to explore</p>
-        <div className="h-4 w-px bg-border" />
+      <div className="absolute bottom-6 flex flex-col items-center gap-1.5 text-muted-foreground/30 animate-bounce">
+        <ChevronDown className="h-4 w-4" />
       </div>
 
     </div>
