@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils"
 import { UseModal } from "./UseModal"
 
 interface Props {
-  plateId: string
+  plateId?: string
   slug: string
   repoUrl?: string
   prominent?: boolean
   className?: string
 }
 
-export function UseButtonClient({ plateId, slug, repoUrl, prominent = false, className }: Props) {
+export function UseButtonClient({ slug, repoUrl, prominent = false, className }: Props) {
   const [openModal, setOpenModal] = useState(false)
 
   return (

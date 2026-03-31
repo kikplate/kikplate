@@ -103,6 +103,7 @@ func (h AuthHandler) OAuthRedirect(w http.ResponseWriter, r *http.Request) {
 		Value:    result.State,
 		MaxAge:   300,
 		HttpOnly: true,
+		Path:     "/",
 		SameSite: http.SameSiteLaxMode,
 	})
 

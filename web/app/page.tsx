@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { HeroSearch } from "@/src/presentation/components/common/HeroSearch"
 import { FeaturedPlates } from "@/src/presentation/components/plates/FeaturedPlates"
 import { CategoriesGrid } from "@/src/presentation/components/common/CategoriesGrid"

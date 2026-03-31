@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { AuthService } from "@/src/domain/services/AuthService"
 
-export default function CallbackPage() {
+function CallbackHandler() {
   const router = useRouter()
   const params = useSearchParams()
 
@@ -20,11 +20,25 @@ export default function CallbackPage() {
     } else {
       router.replace("/login")
     }
-  }, [])
+  }, [params, router])
 
   return (
     <div className="flex min-h-screen items-center justify-center">
       <p className="text-sm text-muted-foreground">Completing sign in…</p>
     </div>
+  )
+}
+
+export default function CallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-muted-foreground">Completing sign in…</p>
+        </div>
+      }
+    >
+      <CallbackHandler />
+    </Suspense>
   )
 }

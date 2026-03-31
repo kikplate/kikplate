@@ -1,0 +1,1 @@
+export const CLIENT_API_BASE = "/api"

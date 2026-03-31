@@ -5,14 +5,13 @@ import { useEffect, useState } from "react"
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend,
 } from "recharts"
 import { BarChart3, ShieldCheck } from "lucide-react"
 import { useStats } from "@/src/presentation/hooks/usePlates"
 import { useBadges } from "@/src/presentation/hooks/useBadges"
 import { buildPlateHref, formatCount } from "@/src/presentation/utils/plateUtils"
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
+const BASE = "/api"
 
 /* ─── resolve CSS custom-property values for recharts (SVG attrs) ─── */
 function useChartColors() {

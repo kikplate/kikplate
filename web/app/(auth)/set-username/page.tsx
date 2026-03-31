@@ -41,8 +41,8 @@ export default function SetUsernamePage() {
       await http.patch("/me/username", { username })
       await qc.invalidateQueries({ queryKey: ["me"] })
       router.replace("/")
-    } catch (err: any) {
-      setError(err?.message ?? "Something went wrong")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
       setIsPending(false)
     }

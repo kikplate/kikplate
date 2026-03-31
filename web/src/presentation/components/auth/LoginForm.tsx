@@ -26,8 +26,8 @@ export function LoginForm() {
       toast.success("Welcome back!")
       router.push("/")
       router.refresh()
-    } catch (err: any) {
-      toast.error(err?.message ?? "Login failed")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Login failed")
     }
   }
 
@@ -83,7 +83,7 @@ export function LoginForm() {
       )}
 
       <p className="text-center text-sm text-muted-foreground">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/register" className="text-foreground underline underline-offset-4 hover:text-primary">
           Sign up
         </Link>

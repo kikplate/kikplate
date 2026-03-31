@@ -43,7 +43,7 @@ export function DeleteAccountModal({ username, onClose, onDeleted }: Props) {
             <TriangleAlert className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
             <div className="text-xs text-muted-foreground space-y-1">
               <p className="font-medium text-foreground">This action is permanent and cannot be undone.</p>
-              <p>All your plates, reviews, and data will be deleted. Other users' forks and uses of your plates will remain.</p>
+              <p>All your plates, reviews, and data will be deleted. Other users&apos; forks and uses of your plates will remain.</p>
             </div>
           </div>
 

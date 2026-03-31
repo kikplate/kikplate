@@ -23,8 +23,8 @@ export function RegisterForm() {
       await register.mutateAsync({ username, email, password })
       toast.success("Account created — check your email to verify.")
       router.push("/login")
-    } catch (err: any) {
-      toast.error(err?.message ?? "Registration failed")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Registration failed")
     }
   }
 

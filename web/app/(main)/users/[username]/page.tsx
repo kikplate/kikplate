@@ -5,6 +5,7 @@ import { PlateGrid } from "@/src/presentation/components/plates/PlateGrid"
 import { relativeTime } from "@/src/presentation/utils/plateUtils"
 import type { Plate, PlateListResponse } from "@/src/domain/entities/Plate"
 import type { Organization } from "@/src/domain/entities/Organization"
+import { getServerApiBaseUrl } from "@/src/lib/api"
 
 interface UserProfile {
   username: string
@@ -21,7 +22,7 @@ interface Props {
 
 export default async function PublicUserPage({ params }: Props) {
   const { username } = await params
-  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
+  const base = await getServerApiBaseUrl()
 
   const userRes = await fetch(`${base}/users/${encodeURIComponent(username)}`, {
     cache: "no-store",
