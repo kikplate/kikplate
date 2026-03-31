@@ -164,8 +164,8 @@ function TreeView({
 
 export function PlateContentTabs({ readme, license, tree }: Props) {
   const [active, setActive] = useState<Tab>("readme")
-  const [MarkdownComponent, setMarkdownComponent] = useState<any>(null)
-  const [plugins, setPlugins] = useState<any[]>([])
+  const [MarkdownComponent, setMarkdownComponent] = useState<React.ComponentType<Record<string, unknown>> | null>(null)
+  const [plugins, setPlugins] = useState<unknown[]>([])
   const treeNodes = useMemo(() => (tree ? buildFileTree(tree) : []), [tree])
   const folderPaths = useMemo(() => collectFolderPaths(treeNodes), [treeNodes])
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useMe, useLogout } from "@/src/presentation/hooks/useAuth"
@@ -15,7 +15,7 @@ import { OwnedPlates } from "@/src/presentation/components/account/OwnedPlates"
 import { BookmarkedPlates } from "@/src/presentation/components/account/BookmarkedPlates"
 import { OrganizationsManager } from "@/src/presentation/components/account/OrganizationsManager"
 
-export default function AccountPage() {
+function AccountContent() {
   const mounted = useMounted()
   const { data: me, isLoading } = useMe()
   const logout = useLogout()
@@ -100,9 +100,17 @@ export default function AccountPage() {
       <div className="container mx-auto px-4 py-10">
         {tab === "profile" && <ProfileDetails me={me} />}
         {tab === "plates"  && <OwnedPlates accountId={me.account_id} />}
-        {tab === "bookmarked"    && <BookmarkedPlates accountId={me.account_id} />}
+        {tab === "bookmarked"    && <BookmarkedPlates />}
         {tab === "organizations" && <OrganizationsManager />}
       </div>
     </div>
+  )
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <AccountContent />
+    </Suspense>
   )
 }

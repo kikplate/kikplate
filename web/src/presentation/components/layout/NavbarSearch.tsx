@@ -78,7 +78,7 @@ export function NavbarSearch() {
               </div>
             ) : results.length === 0 ? (
               <div className="px-3 py-3 text-center">
-                <p className="text-xs text-muted-foreground">No plates found for "{query}"</p>
+                <p className="text-xs text-muted-foreground">No plates found for &quot;{query}&quot;</p>
                 <button
                   onClick={() => handleSearch(query)}
                   className="mt-1.5 text-xs text-foreground underline underline-offset-2 hover:no-underline"

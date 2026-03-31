@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"
 import {
   Server, Globe, Layers, Smartphone,
   Terminal, Package, Wrench, MoreHorizontal,
-  ArrowRight,
   Database, Cloud, Shield, Cpu, Gamepad2, BookOpen, Bot
 } from "lucide-react"
 
@@ -47,7 +46,7 @@ export function CategoriesGrid() {
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-          {CATEGORIES.map(({ slug, label, icon: Icon, description }, i) => (
+          {CATEGORIES.map(({ slug, label, icon: Icon, description }) => (
             <button
               key={slug}
               onClick={() => router.push(`/explore?category=${slug}`)}

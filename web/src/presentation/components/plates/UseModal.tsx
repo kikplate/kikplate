@@ -87,7 +87,7 @@ export function UseModal({ open, onClose, repoUrl, slug }: Props) {
 
           <div className="border-t border-border pt-4">
             <p className="text-xs text-muted-foreground">
-              Don't have the CLI?{" "}
+              Don&apos;t have the CLI?{" "}
               <span className="text-foreground underline underline-offset-4 cursor-pointer">
                 Install kickplate
               </span>

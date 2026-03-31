@@ -1,0 +1,6 @@
+.git
+.github
+.vscode
+*.md
+LICENSE
+kikplate_postman_collection.json

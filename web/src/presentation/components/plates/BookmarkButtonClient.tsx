@@ -23,7 +23,7 @@ export function BookmarkButtonClient({ plateId, isBookmarked = false, prominent 
       await mutation.mutateAsync({ id: plateId, bookmarked: !bookmarked })
       setBookmarked(!bookmarked)
       toast.success(bookmarked ? "Removed from bookmarks" : "Added to bookmarks")
-    } catch (error) {
+    } catch {
       toast.error("Failed to update bookmark")
     }
   }

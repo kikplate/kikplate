@@ -18,6 +18,7 @@ import { HeaderBadges } from "@/src/presentation/components/plates/HeaderBadges"
 import type { Plate } from "@/src/domain/entities/Plate"
 import type { Badge } from "@/src/domain/entities/Badge"
 import type { AppConfig } from "@/src/domain/entities/Config"
+import { getServerApiBaseUrl } from "@/src/lib/api"
 
 interface Props {
   params: Promise<{ slug: string[] }>
@@ -31,7 +32,7 @@ export default async function PlateDetailPage({ params }: Props) {
   try {
     normalizedSlug = decodeURIComponent(rawSlug)
   } catch {}
-  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
+  const base = await getServerApiBaseUrl()
   const token = (await cookies()).get("kp_token")?.value
 
   const res = await fetch(`${base}/plates/${encodeURIComponent(normalizedSlug)}`, {

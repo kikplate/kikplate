@@ -1,6 +1,5 @@
 import { AuthService } from "@/src/domain/services/AuthService"
-
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
+import { CLIENT_API_BASE } from "@/src/lib/client-api"
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -36,7 +35,7 @@ async function httpFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   if (token) headers["Authorization"] = `Bearer ${token}`
 
-  const res = await fetch(`${BASE}${path}`, { ...init, headers })
+  const res = await fetch(`${CLIENT_API_BASE}${path}`, { ...init, headers })
 
   if (!res.ok) {
     let message = res.statusText

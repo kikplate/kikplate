@@ -1,0 +1,8 @@
+.git
+.github
+.vscode
+.next
+.env*
+node_modules
+*.md
+LICENSE

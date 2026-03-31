@@ -11,6 +11,42 @@ services:
       - postgres_data:/var/lib/postgresql
     restart: unless-stopped
 
+  api:
+    build:
+      context: ./api
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      - CONFIG_PATH=/app/config/config.yaml
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  sync:
+    build:
+      context: ./api
+    command: ["app:sync"]
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      - CONFIG_PATH=/app/config/config.yaml
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+    ports:
+      - "3000:3000"
+    environment:
+      - API_INTERNAL_URL=http://api:3001
+    depends_on:
+      - api
+    restart: unless-stopped
+
 volumes:
   postgres_data:
 

@@ -71,7 +71,7 @@ export function PendingVerification({ plate, onRemove, removing = false }: Props
 
           <div className="space-y-2">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              Once you've pushed the update, click the button below to verify:
+              Once you&apos;ve pushed the update, click the button below to verify:
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <Button

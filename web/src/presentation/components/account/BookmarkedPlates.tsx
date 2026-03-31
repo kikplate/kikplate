@@ -1,13 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
 import { usePlates } from "@/src/presentation/hooks/usePlates"
 import { LoadingSpinner } from "@/src/presentation/components/common/LoadingSpinner"
 import { PlateGrid } from "@/src/presentation/components/plates/PlateGrid"
 import { Heart } from "lucide-react"
 
-export function BookmarkedPlates({ accountId }: { accountId: string }) {
+export function BookmarkedPlates() {
   const { data, isLoading, isError } = usePlates({ bookmarked: true, limit: 48 })
 
   if (isLoading) {

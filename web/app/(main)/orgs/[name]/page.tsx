@@ -5,6 +5,7 @@ import { PlateGrid } from "@/src/presentation/components/plates/PlateGrid"
 import { relativeTime } from "@/src/presentation/utils/plateUtils"
 import type { Plate, PlateListResponse } from "@/src/domain/entities/Plate"
 import type { Organization } from "@/src/domain/entities/Organization"
+import { getServerApiBaseUrl } from "@/src/lib/api"
 
 interface Props {
   params: Promise<{ name: string }>
@@ -12,7 +13,7 @@ interface Props {
 
 export default async function PublicOrgPage({ params }: Props) {
   const { name } = await params
-  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
+  const base = await getServerApiBaseUrl()
 
   const orgRes = await fetch(
     `${base}/organizations/by-name/${encodeURIComponent(name)}`,
