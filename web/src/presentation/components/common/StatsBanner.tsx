@@ -11,33 +11,18 @@ const SlackIcon = () => (
   </svg>
 )
 
-interface StatRowProps {
+interface StatCardProps {
   icon: React.ReactNode
   value: string
   label: string
-  inverted?: boolean
 }
 
-function StatRow({ icon, value, label, inverted = false }: StatRowProps) {
+function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <div
-      className={`flex items-center justify-between border-b py-4 last:border-0 ${
-        inverted ? "border-background/20 dark:border-secondary/30" : "border-border"
-      }`}
-    >
-      <div
-        className={`flex items-center gap-3 ${
-          inverted ? "text-background/75 dark:text-secondary/70" : "text-muted-foreground"
-        }`}
-      >
-        {icon}
-        <span className={`text-sm ${inverted ? "text-background dark:text-secondary" : "text-foreground"}`}>
-          {label}
-        </span>
-      </div>
-      <span className={`text-2xl font-bold tabular-nums ${inverted ? "text-background dark:text-secondary" : "text-foreground"}`}>
-        {value}
-      </span>
+    <div className="flex flex-col items-center gap-2 border border-border bg-card p-5 text-center">
+      <div className="text-muted-foreground">{icon}</div>
+      <p className="text-3xl font-bold tabular-nums text-foreground">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
     </div>
   )
 }
@@ -45,120 +30,92 @@ function StatRow({ icon, value, label, inverted = false }: StatRowProps) {
 export function StatsBanner() {
   const { data } = useStats()
 
-  const leftStats = [
-    {
-      icon: <Package className="h-4 w-4" />,
-      value: data ? formatCount(data.total_plates) : "—",
-      label: "Plates",
-    },
-    {
-      icon: <Users className="h-4 w-4" />,
-      value: data ? formatCount(data.total_contributors) : "—",
-      label: "Contributors",
-    },
-    {
-      icon: <Layers className="h-4 w-4" />,
-      value: data ? formatCount(data.total_categories) : "—",
-      label: "Categories",
-    },
-  ]
-
-  const rightStats = [
-    {
-      icon: <Download className="h-4 w-4" />,
-      value: data ? formatCount(data.total_bookmarks) : "—",
-      label: "Bookmarks",
-    },
-    {
-      icon: <Github className="h-4 w-4" />,
-      value: "—",
-      label: "GitHub Stars",
-    },
-    {
-      icon: <SlackIcon />,
-      value: "—",
-      label: "Slack Members",
-    },
+  const allStats = [
+    { icon: <Package className="h-5 w-5" />, value: data ? formatCount(data.total_plates) : "—", label: "Plates" },
+    { icon: <Users className="h-5 w-5" />, value: data ? formatCount(data.total_contributors) : "—", label: "Contributors" },
+    { icon: <Layers className="h-5 w-5" />, value: data ? formatCount(data.total_categories) : "—", label: "Categories" },
+    { icon: <Download className="h-5 w-5" />, value: data ? formatCount(data.total_bookmarks) : "—", label: "Bookmarks" },
+    { icon: <Github className="h-5 w-5" />, value: "—", label: "GitHub Stars" },
+    { icon: <SlackIcon />, value: "—", label: "Slack Members" },
   ]
 
   return (
     <section className="bg-background py-20">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 border border-border lg:grid-cols-2">
 
-          <div className="bg-card p-6 sm:p-8">
-            <div className="mb-4 inline-flex items-center gap-2 border border-border bg-muted/40 px-2.5 py-1 text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5" />
-              <p className="text-xs font-semibold uppercase tracking-widest">Community</p>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+
+          <div className="flex flex-col gap-6">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 border border-border bg-muted/40 px-2.5 py-1 text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5" />
+                <p className="text-xs font-semibold uppercase tracking-widest">Community</p>
+              </div>
+
+              <h2 className="text-3xl font-bold leading-tight tracking-tight text-foreground">
+                Built by the community,
+                <br />
+                for the community
+              </h2>
+
+              <p className="mt-4 max-w-lg leading-relaxed text-muted-foreground">
+                KikPlate is an open source registry of production-ready project plates.
+                Developers submit real plates, maintainers review structure and metadata,
+                and every plate remains free to use.
+              </p>
             </div>
 
-            <h2 className="text-3xl font-bold leading-tight tracking-tight text-foreground">
-              Built by the community,
-              <br />
-              for the community
-            </h2>
-
-            <p className="mt-4 max-w-lg leading-relaxed text-muted-foreground">
-              KikPlate is an open source registry of production-ready project plates.
-              Developers submit real plates, maintainers review structure and metadata,
-              and every plate remains free to use.
-            </p>
-
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="border border-border bg-background p-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="border border-border bg-card p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Open model</p>
-                <p className="mt-1 text-sm text-foreground">Anyone can contribute quality plates.</p>
+                <p className="mt-1.5 text-sm text-foreground">Anyone can contribute quality plates.</p>
               </div>
-              <div className="border border-border bg-background p-3">
+              <div className="border border-border bg-card p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clear metadata</p>
-                <p className="mt-1 text-sm text-foreground">Owner, tags, category, and usage context.</p>
+                <p className="mt-1.5 text-sm text-foreground">Owner, tags, category, and usage context.</p>
               </div>
             </div>
 
-            <div className="mt-6 space-y-2 border-t border-border pt-4 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Production-ready plates</p>
-              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Transparent and auditable plates</p>
-              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Community driven improvement loop</p>
+            <div className="space-y-2.5 border-t border-border pt-5 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 shrink-0" />Production-ready plates</p>
+              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 shrink-0" />Transparent and auditable plates</p>
+              <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 shrink-0" />Community driven improvement loop</p>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="https://github.com/kickplate"
                 target="_blank"
-                className="inline-flex items-center gap-1.5 border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                className="group inline-flex items-center gap-1.5 border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
               >
+                <Github className="h-4 w-4" />
                 View on GitHub
-                <ArrowRight className="h-3.5 w-3.5" />
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 href="#"
-                className="inline-flex items-center gap-1.5 border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                className="group inline-flex items-center gap-1.5 border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
               >
+                <SlackIcon />
                 Join Slack
-                <ArrowRight className="h-3.5 w-3.5" />
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
           </div>
 
-          <div className="border-t border-border bg-[oklch(0.22_0.02_250)] p-6 text-background dark:bg-secondary-foreground dark:text-secondary sm:p-8 lg:border-t-0 lg:border-l lg:border-border">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-background/80 dark:text-secondary/80">
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               By the numbers
             </p>
-            <div className="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
-              <div className="sm:pr-4">
-                {leftStats.map((s) => (
-                  <StatRow key={s.label} icon={s.icon} value={s.value} label={s.label} inverted />
-                ))}
-              </div>
-              <div className="sm:border-l sm:border-background/20 dark:sm:border-secondary/30 sm:pl-4">
-                {rightStats.map((s) => (
-                  <StatRow key={s.label} icon={s.icon} value={s.value} label={s.label} inverted />
-                ))}
-              </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {allStats.map((s) => (
+                <StatCard key={s.label} icon={s.icon} value={s.value} label={s.label} />
+              ))}
             </div>
           </div>
 
         </div>
+
       </div>
     </section>
   )
