@@ -4,13 +4,12 @@ import { useQuery } from "@tanstack/react-query"
 
 export interface ExternalCommunityStats {
   githubStars: number | null
-  slackMembers: number | null
 }
 
 async function fetchExternalStats(): Promise<ExternalCommunityStats> {
   const res = await fetch("/api/stats/external", { cache: "no-store" })
   if (!res.ok) {
-    return { githubStars: null, slackMembers: null }
+    return { githubStars: null }
   }
   return res.json()
 }

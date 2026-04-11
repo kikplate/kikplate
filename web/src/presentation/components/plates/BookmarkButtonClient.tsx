@@ -1,11 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Heart } from "lucide-react"
 import { useSetBookmark } from "@/src/presentation/hooks/usePlates"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { ApiError } from "@/src/data/repositories/httpClient"
+import { AuthService } from "@/src/domain/services/AuthService"
 
 interface Props {
   plateId: string
@@ -15,16 +18,37 @@ interface Props {
 }
 
 export function BookmarkButtonClient({ plateId, isBookmarked = false, prominent = false, className }: Props) {
+  const router = useRouter()
   const [bookmarked, setBookmarked] = useState(isBookmarked)
   const mutation = useSetBookmark()
 
   async function handleBookmarkToggle() {
+    if (!AuthService.isAuthenticated()) {
+      toast.error("Sign in to bookmark", {
+        description: "You need an account to save plates.",
+        action: { label: "Log in", onClick: () => router.push("/login") },
+      })
+      return
+    }
     try {
       await mutation.mutateAsync({ id: plateId, bookmarked: !bookmarked })
       setBookmarked(!bookmarked)
       toast.success(bookmarked ? "Removed from bookmarks" : "Added to bookmarks")
-    } catch {
-      toast.error("Failed to update bookmark")
+    } catch (e) {
+      if (e instanceof ApiError && e.isUnauthorized()) {
+        toast.error("Sign in required", {
+          description: "Your session expired or is invalid. Sign in again to bookmark.",
+          action: { label: "Log in", onClick: () => router.push("/login") },
+        })
+        return
+      }
+      if (e instanceof ApiError && e.isForbidden()) {
+        toast.error("Cannot update bookmark", { description: e.message })
+        return
+      }
+      toast.error("Failed to update bookmark", {
+        description: e instanceof Error ? e.message : undefined,
+      })
     }
   }
 

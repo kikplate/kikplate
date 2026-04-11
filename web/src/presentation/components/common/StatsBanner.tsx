@@ -6,7 +6,7 @@ import { useConfig } from "@/src/presentation/hooks/useConfig"
 import { useExternalCommunityStats } from "@/src/presentation/hooks/useExternalCommunityStats"
 import { getSocialLink } from "@/src/lib/socialLinks"
 import { formatCount } from "@/src/presentation/utils/plateUtils"
-import { Github, Users, Layers, Download, Package, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react"
+import { Github, Users, Layers, Package, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react"
 
 const SlackIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
@@ -39,16 +39,12 @@ export function StatsBanner() {
 
   const githubStarsDisplay =
     externalLoading ? "…" : externalStats?.githubStars != null ? formatCount(externalStats.githubStars) : "—"
-  const slackMembersDisplay =
-    externalLoading ? "…" : externalStats?.slackMembers != null ? formatCount(externalStats.slackMembers) : "—"
 
   const allStats = [
     { icon: <Package className="h-5 w-5" />, value: data ? formatCount(data.total_plates) : "—", label: "Plates" },
     { icon: <Users className="h-5 w-5" />, value: data ? formatCount(data.total_contributors) : "—", label: "Contributors" },
     { icon: <Layers className="h-5 w-5" />, value: data ? formatCount(data.total_categories) : "—", label: "Categories" },
-    { icon: <Download className="h-5 w-5" />, value: data ? formatCount(data.total_bookmarks) : "—", label: "Bookmarks" },
     { icon: <Github className="h-5 w-5" />, value: githubStarsDisplay, label: "GitHub Stars" },
-    { icon: <SlackIcon />, value: slackMembersDisplay, label: "Slack Members" },
   ]
 
   return (
@@ -124,7 +120,7 @@ export function StatsBanner() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               By the numbers
             </p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3">
               {allStats.map((s) => (
                 <StatCard key={s.label} icon={s.icon} value={s.value} label={s.label} />
               ))}

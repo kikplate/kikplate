@@ -107,7 +107,7 @@ export function Navbar() {
           {me ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 ring-offset-background">
-                <Avatar className="h-8 w-8 cursor-pointer rounded-sm">
+                <Avatar key={me.account_id} className="h-8 w-8 cursor-pointer rounded-sm">
                   {me.avatar_url && <AvatarImage src={me.avatar_url} alt={me.username ?? me.display_name ?? "avatar"} />}
                   <AvatarFallback className="text-xs bg-white/20 text-white rounded-sm font-semibold">
                     {initials}
@@ -151,7 +151,7 @@ export function Navbar() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 ring-offset-[#1a1f2e]">
-                <Avatar className="h-8 w-8 cursor-pointer rounded-sm">
+                <Avatar key="nav-signed-out" className="h-8 w-8 cursor-pointer rounded-sm">
                   <AvatarFallback className="text-xs bg-muted text-white/60 rounded-sm">
                     ?
                   </AvatarFallback>

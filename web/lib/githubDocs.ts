@@ -121,7 +121,12 @@ export async function fetchDocsIndex(): Promise<{ slug: string; name: string; fi
   }
 
   const mdFiles = data
-    .filter((e) => e.type === 'file' && e.name.endsWith('.md') && e.name !== 'README.md')
+    .filter(
+      (e) =>
+        e.type === 'file' &&
+        e.name.endsWith('.md') &&
+        !/^readme\.md$/i.test(e.name),
+    )
     .map((e) => {
       const slug = e.name.replace(/\.md$/, '')
       const name = slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())

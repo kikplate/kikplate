@@ -50,7 +50,10 @@ func parseJWT(tokenStr, secret string) (uuid.UUID, error) {
 		}
 		return []byte(secret), nil
 	})
-	if err != nil || !token.Valid {
+	if err != nil {
+		return uuid.Nil, err
+	}
+	if token == nil || !token.Valid {
 		return uuid.Nil, jwt.ErrTokenInvalidClaims
 	}
 
