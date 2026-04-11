@@ -15,7 +15,7 @@ const registerUseCase    = new RegisterUseCase(authRepository)
 const getMeUseCase       = new GetMeUseCase(authRepository)
 const verifyEmailUseCase = new VerifyEmailUseCase(authRepository)
 
-function useAuthToken() {
+export function useAuthToken() {
   return useSyncExternalStore(
     AuthService.subscribe,
     () => AuthService.getToken(),
@@ -26,13 +26,18 @@ function useAuthToken() {
 export function useMe() {
   const token = useAuthToken()
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ["me"],
     queryFn: () => getMeUseCase.execute(),
     enabled: Boolean(token),
     retry: false,
     staleTime: 5 * 60_000,
   })
+
+  return {
+    ...query,
+    data: token ? query.data : undefined,
+  }
 }
 
 export function useLogin() {

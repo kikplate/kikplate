@@ -44,15 +44,20 @@ export function PlateRatingCard({ plateId, plateSlug, plateOwnerId, avgRating, u
     if (!rating) return
 
     try {
-      console.log("Submitting rating:", { plateId, rating })
       await mutation.mutateAsync({ id: plateId, slug: plateSlug, rating })
       setUserRating(rating)
       setRating(0)
       toast.success("Thanks for rating this plate!")
       router.refresh()
     } catch (error) {
-      console.error("Rating submission error:", error)
       if (error instanceof ApiError) {
+        if (error.isUnauthorized()) {
+          toast.error("Sign in to rate", {
+            description: "Your session expired or is invalid. Sign in again to submit a rating.",
+            action: { label: "Log in", onClick: () => router.push("/login") },
+          })
+          return
+        }
         if (error.isConflict()) {
           setUserRating(rating)
           toast.info("You've already rated this plate")

@@ -32,6 +32,53 @@ export async function fetchRepoFile(
   }
 }
 
+const ROOT_README_MD_RE = /^readme\.(md|markdown)$/i
+
+function githubContentsApiHeaders(): HeadersInit {
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+  }
+  const token = process.env.GITHUB_TOKEN?.trim()
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+  return headers
+}
+
+interface GitHubRootContentEntry {
+  name: string
+  type: string
+}
+
+export async function fetchRepoReadme(
+  repoUrl: string,
+  branch: string
+): Promise<string | null> {
+  const fromDefault = await fetchRepoFile(repoUrl, branch, "README.md")
+  if (fromDefault) return fromDefault
+
+  const repoPath = repoToPath(repoUrl)
+  const url = `https://api.github.com/repos/${repoPath}/contents?ref=${encodeURIComponent(branch)}`
+  try {
+    const res = await fetch(url, {
+      headers: githubContentsApiHeaders(),
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return null
+    const data = (await res.json()) as GitHubRootContentEntry[] | { message?: string }
+    if (!Array.isArray(data)) return null
+    for (const entry of data) {
+      if (entry.type === "file" && ROOT_README_MD_RE.test(entry.name)) {
+        return fetchRepoFile(repoUrl, branch, entry.name)
+      }
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
 export async function fetchRepoTree(
   repoUrl: string,
   branch: string

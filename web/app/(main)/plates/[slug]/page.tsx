@@ -7,7 +7,7 @@ import {
   Tag, CheckCircle2, Calendar,
   ExternalLink, ArrowLeft
 } from "lucide-react"
-import { fetchRepoFile, fetchRepoTree } from "@/src/data/repositories/githubClient"
+import { fetchRepoFile, fetchRepoReadme, fetchRepoTree } from "@/src/data/repositories/githubClient"
 import { formatCount, relativeTime } from "@/src/presentation/utils/plateUtils"
 import { UseButtonClient } from "@/src/presentation/components/plates/UseButtonClient"
 import { BookmarkButtonClient } from "@/src/presentation/components/plates/BookmarkButtonClient"
@@ -16,7 +16,8 @@ import { PlateHeaderTabs } from "@/src/presentation/components/plates/PlateHeade
 import { PlateRatingCard } from "@/src/presentation/components/plates/PlateRatingCard"
 import { BadgeShowcase } from "@/src/presentation/components/plates/BadgeShowcase"
 import { HeaderBadges } from "@/src/presentation/components/plates/HeaderBadges"
-import type { Plate } from "@/src/domain/entities/Plate"
+import { RelatedPlates } from "@/src/presentation/components/plates/RelatedPlates"
+import type { Plate, PlateListResponse } from "@/src/domain/entities/Plate"
 import type { Badge } from "@/src/domain/entities/Badge"
 import type { AppConfig } from "@/src/domain/entities/Config"
 import { getServerApiBaseUrl } from "@/src/lib/api"
@@ -47,12 +48,45 @@ export default async function PlateDetailPage({ params }: Props) {
 
   const plate = (await res.json()) as Plate
 
-  const [badgesRes, configRes] = await Promise.all([
+  const relatedQs = new URLSearchParams()
+  relatedQs.set("limit", "12")
+  let relatedExploreHref = ""
+  let relatedExploreLabel = ""
+  if (plate.category?.trim()) {
+    relatedQs.set("category", plate.category.trim())
+    relatedExploreHref = `/explore?category=${encodeURIComponent(plate.category.trim())}`
+    relatedExploreLabel = `More in ${plate.category}`
+  } else if (plate.tags?.[0]?.tag) {
+    relatedQs.set("tag", plate.tags[0].tag)
+    relatedExploreHref = `/explore?tag=${encodeURIComponent(plate.tags[0].tag)}`
+    relatedExploreLabel = `More tagged "${plate.tags[0].tag}"`
+  }
+
+  const relatedUrl =
+    relatedQs.has("category") || relatedQs.has("tag")
+      ? `${base}/plates?${relatedQs.toString()}`
+      : null
+
+  const [badgesRes, configRes, relatedRes] = await Promise.all([
     fetch(`${base}/badges`, { cache: "no-store" }),
     fetch(`${base}/config`, { cache: "no-store" }),
+    relatedUrl
+      ? fetch(relatedUrl, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          cache: "no-store",
+        })
+      : Promise.resolve({ ok: false } as Response),
   ])
   const allBadges: Badge[] = badgesRes.ok ? await badgesRes.json() : []
   const appConfig: AppConfig | null = configRes.ok ? await configRes.json() : null
+
+  let relatedPlates: Plate[] = []
+  if (relatedRes.ok) {
+    const body = (await relatedRes.json()) as PlateListResponse
+    relatedPlates = (body.data ?? [])
+      .filter((p) => p.slug !== plate.slug)
+      .slice(0, 6)
+  }
 
   let readme: string | null = null
   let license: string | null = null
@@ -61,7 +95,7 @@ export default async function PlateDetailPage({ params }: Props) {
   if (plate.type === "repository" && plate.repo_url) {
     const branch = plate.branch ?? "main"
     ;[readme, license, tree] = await Promise.all([
-      fetchRepoFile(plate.repo_url, branch, "README.md"),
+      fetchRepoReadme(plate.repo_url, branch),
       fetchRepoFile(plate.repo_url, branch, "LICENSE"),
       fetchRepoTree(plate.repo_url, branch),
     ])
@@ -262,6 +296,14 @@ export default async function PlateDetailPage({ params }: Props) {
                 </div>
               ) : null}
             </div>
+
+            {relatedPlates.length > 0 && relatedExploreHref ? (
+              <RelatedPlates
+                plates={relatedPlates}
+                exploreHref={relatedExploreHref}
+                exploreLabel={relatedExploreLabel}
+              />
+            ) : null}
 
             <BadgeShowcase
               allBadges={allBadges}
