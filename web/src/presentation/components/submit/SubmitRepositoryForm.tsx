@@ -1,11 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSubmitRepository } from "@/src/presentation/hooks/usePlates"
 import { useMyOrganizations } from "@/src/presentation/hooks/useOrganizations"
 import { useMe } from "@/src/presentation/hooks/useAuth"
-import { Loader2, AlertCircle, Info, Copy, Check } from "lucide-react"
+import { useConfig } from "@/src/presentation/hooks/useConfig"
+import { Loader2, AlertCircle, Copy, Check, FileCode2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
@@ -14,6 +16,8 @@ export function SubmitRepositoryForm() {
   const submit = useSubmitRepository()
   const { data: me } = useMe()
   const { data: organizations } = useMyOrganizations()
+  const { data: appConfig, isLoading: configLoading } = useConfig()
+  const plateCategories = appConfig?.plate_categories ?? []
   const [repoUrl, setRepoUrl] = useState("")
   const [branch, setBranch] = useState("main")
   const [organizationId, setOrganizationId] = useState("")
@@ -43,28 +47,149 @@ export function SubmitRepositoryForm() {
   const errorMsg = submit.error instanceof Error ? submit.error.message : null
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="border border-border bg-muted/30 px-4 py-3 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <p className="text-xs font-semibold text-foreground">Before you submit</p>
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10 lg:items-start"
+    >
+      <div className="border border-border bg-card lg:sticky lg:top-8 self-start">
+        <div className="border-b border-border bg-muted/20 px-4 py-3 flex items-start gap-2.5">
+          <FileCode2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">Before you submit</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
+              Add <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code> at the repository root.{" "}
+              <Link
+                href="/docs?doc=how-it-works"
+                className="font-medium text-foreground underline underline-offset-2 hover:text-muted-foreground"
+              >
+                How it works
+              </Link>
+            </p>
+          </div>
         </div>
-        <ul className="text-xs text-muted-foreground space-y-1 pl-5">
-          <li>· The repository must be public</li>
-          <li>
-            · It must contain a{" "}
-            <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code>{" "}
-            at the root
-          </li>
-          <li>
-            · The <code className="font-mono bg-muted px-1 py-0.5">owner</code> field in that
-            file must match: <span className="font-mono text-foreground font-medium">{ownerHint}</span>{" "}
-            ({isPersonalSubmission ? "personal submit uses your username" : "org submit uses organization name"})
-          </li>
-        </ul>
+
+        <div className="px-4 py-4 space-y-5 text-xs text-muted-foreground leading-relaxed">
+          <div>
+            <p className="font-semibold text-foreground mb-1.5">Repository</p>
+            <ul className="list-disc pl-4 space-y-1 mb-3">
+              <li>The repository must be public.</li>
+              <li>
+                It must include <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code> at the root on
+                the branch you enter below.
+              </li>
+            </ul>
+
+            <p className="font-semibold text-foreground mb-2 text-[11px] uppercase tracking-wide">
+              Personal or organization
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded border border-border/80 bg-muted/10 px-3 py-2.5 space-y-1">
+                <p className="text-xs font-semibold text-foreground">Personal</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Under Repository details, leave <span className="text-foreground font-medium">Personal</span>. The
+                  plate is registered on <span className="text-foreground font-medium">your user account</span> only.
+                  In <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code>, set{" "}
+                  <code className="font-mono bg-muted px-1 py-0.5">owner</code> to your Kikplate username
+                  {me?.username ? (
+                    <> (<span className="font-mono text-foreground">{me.username}</span>)</>
+                  ) : (
+                    <> (the username on your profile)</>
+                  )}.
+                </p>
+              </div>
+              <div className="rounded border border-border/80 bg-muted/10 px-3 py-2.5 space-y-1">
+                <p className="text-xs font-semibold text-foreground">Organization</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Under Repository details, choose an <span className="text-foreground font-medium">organization you own</span>.
+                  The plate is registered <span className="text-foreground font-medium">under that organization</span> (not
+                  only on your user). In <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code>, set{" "}
+                  <code className="font-mono bg-muted px-1 py-0.5">owner</code> to the{" "}
+                  <span className="text-foreground font-medium">organization&apos;s exact name</span>—not your personal
+                  username.
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-3 rounded border border-border/70 bg-muted/15 px-3 py-2 text-[11px] leading-relaxed">
+              <span className="font-medium text-foreground">For this submit: </span>
+              {isPersonalSubmission ? (
+                <>
+                  You have <span className="text-foreground font-medium">Personal</span> selected →{" "}
+                  <code className="font-mono bg-muted px-1 py-0.5">owner</code> must be{" "}
+                  <span className="font-mono text-foreground font-medium">{ownerHint}</span>.
+                </>
+              ) : (
+                <>
+                  You have <span className="text-foreground font-medium">{selectedOrganization?.name}</span> selected →
+                  the plate goes to that org → <code className="font-mono bg-muted px-1 py-0.5">owner</code> must be{" "}
+                  <span className="font-mono text-foreground font-medium">{ownerHint}</span> (org name, not your username).
+                </>
+              )}
+            </p>
+          </div>
+
+          <div>
+            <p className="font-semibold text-foreground mb-1.5">Manifest fields</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>
+                <span className="text-foreground">Required:</span>{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">name</code> (plate title, used for the slug),{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">owner</code> (must match the value above).
+              </li>
+              <li>
+                <span className="text-foreground">Optional:</span>{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">description</code>,{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">category</code> (must be one of the slugs below;
+                matching is case-insensitive; anything else or empty becomes{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">other</code>),{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">tags</code>.
+              </li>
+              <li>
+                <span className="text-foreground">After submit:</span> add{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">verification_token</code> from your account, push,
+                then verify so the plate can go public. Sync keeps re-reading this file.
+              </li>
+            </ul>
+
+            <div className="mt-3 rounded border border-border/70 bg-muted/10 px-3 py-2.5">
+              <p className="text-[11px] font-semibold text-foreground mb-2">Allowed category slugs</p>
+              {configLoading ? (
+                <p className="text-[11px] text-muted-foreground italic">Loading…</p>
+              ) : plateCategories.length === 0 ? (
+                <p className="text-[11px] text-muted-foreground italic">None returned.</p>
+              ) : (
+                <ul className="flex flex-wrap gap-1.5">
+                  {plateCategories.map((c) => (
+                    <li
+                      key={c.slug}
+                      title={c.label ? `${c.label}: ${c.description}` : c.description}
+                      className="border border-border bg-background px-2 py-0.5 font-mono text-[11px] text-foreground"
+                    >
+                      {c.slug}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <p className="font-semibold text-foreground mb-1.5">Minimal example</p>
+            <pre className="border border-border bg-muted/20 p-3 font-mono text-[11px] text-foreground overflow-x-auto leading-snug">
+{`name: My Starter
+owner: your-username
+description: Short summary
+category: backend
+tags:
+  - golang
+  - docker`}
+            </pre>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-6">
+        <div className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Repository details
         </p>
@@ -116,7 +241,7 @@ export function SubmitRepositoryForm() {
             </p>
           )}
         </div>
-      </div>
+        </div>
 
       {errorMsg && (
         <div className="border border-destructive/40 bg-destructive/5 px-4 py-3 space-y-2">
@@ -184,15 +309,16 @@ export function SubmitRepositoryForm() {
         </div>
       )}
 
-      <div className="border-t border-border pt-5">
-        <Button
-          type="submit"
-          disabled={submit.isPending || !repoUrl}
-          className="gap-2"
-        >
-          {submit.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          Submit repository plate
-        </Button>
+        <div className="border-t border-border pt-5">
+          <Button
+            type="submit"
+            disabled={submit.isPending || !repoUrl}
+            className="gap-2"
+          >
+            {submit.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            Submit repository plate
+          </Button>
+        </div>
       </div>
     </form>
   )

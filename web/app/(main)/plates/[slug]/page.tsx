@@ -174,7 +174,13 @@ export default async function PlateDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 gap-7 xl:gap-8 lg:grid-cols-12">
           <section className="lg:col-span-9">
             <div>
-              <PlateContentTabs readme={readme} license={license} tree={tree} />
+              <PlateContentTabs
+                readme={readme}
+                license={license}
+                tree={tree}
+                repoUrl={plate.repo_url}
+                branch={plate.branch ?? undefined}
+              />
             </div>
           </section>
 

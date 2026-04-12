@@ -224,6 +224,46 @@ badges:
 
 Supported `tier` values are `official` and `community`. Badge icons use the Lucide icon name format.
 
+### plate_categories
+
+Defines the **allowed plate taxonomy**: which `category` values are valid in `kikplate.yaml`, how they appear in the web app (home “browse by category”, explore filters, stats), and how the API normalizes categories when ingesting manifests.
+
+#### `category` in `kikplate.yaml`
+
+Repository authors set `category` to the **`slug`** of one entry in `plate_categories`. Matching is **case-insensitive** after trimming whitespace. If the field is omitted, empty, or not in the list, the stored category becomes the slug used for “other” (by default `other`). Submit and sync **do not fail** on a bad category value.
+
+The authoritative list of allowed slugs for a deployment is whatever appears under `plate_categories` in that deployment’s YAML. If you omit the whole `plate_categories` key, the API falls back to a built-in default set (backend, frontend, fullstack, mobile, cli, devops, library, database, cloud, security, iot, game, documentation, ai-ml, other). Operators who customize the list should keep an explicit catch-all (typically `other`) so every manifest maps cleanly.
+
+```yaml
+plate_categories:
+  - slug: backend
+    label: Backend
+    description: APIs, services, microservices
+    icon: server
+  - slug: other
+    label: Other
+    description: Everything else
+    icon: more-horizontal
+```
+
+| Field | Description |
+|-------|-------------|
+| `slug` | Stored on the plate and used in URLs and filters. Must be unique in the list. |
+| `label` | Human-readable title in the UI. |
+| `description` | Short helper text (for example on the home page category grid). |
+| `icon` | Lucide icon name in kebab-case (for example `book-open`, `more-horizontal`), same style as badge icons. |
+
+If you supply a custom list without an `other`-like slug, the API appends the default “other” entry so normalization always has a target.
+
+### Public app config (`GET /config`)
+
+The API exposes **non-secret** UI settings for the Next.js app. Today that response includes:
+
+- All keys under `customization` (logo, banner, social links, prepared search queries, and so on).
+- `plate_categories`: the effective list after defaults are applied, as described above.
+
+Database credentials, JWT secrets, and OAuth client secrets are **not** included.
+
 ## Kubernetes and Helm
 
 In Kubernetes, the config file is stored in a ConfigMap and mounted at `/app/config/config.yaml`. Secrets such as `JWT_SECRET` and OAuth client secrets are stored in a Kubernetes Secret and injected as environment variables.

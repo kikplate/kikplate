@@ -4,11 +4,14 @@ import { useState, useEffect, useMemo } from "react"
 import type { ComponentPropsWithoutRef } from "react"
 import { ChevronDown, ChevronRight, File, Folder } from "lucide-react"
 import type { RepoTreeEntry } from "@/src/data/repositories/githubClient"
+import { resolveRepoMarkdownHref } from "@/src/presentation/utils/readmeLinks"
 
 interface Props {
   readme: string | null
   license: string | null
   tree: RepoTreeEntry[] | null
+  repoUrl?: string | null
+  branch?: string | null
 }
 
 type Tab = "readme" | "license" | "files"
@@ -162,7 +165,7 @@ function TreeView({
   )
 }
 
-export function PlateContentTabs({ readme, license, tree }: Props) {
+export function PlateContentTabs({ readme, license, tree, repoUrl, branch }: Props) {
   const [active, setActive] = useState<Tab>("readme")
   const [MarkdownComponent, setMarkdownComponent] = useState<React.ComponentType<Record<string, unknown>> | null>(null)
   const [plugins, setPlugins] = useState<unknown[]>([])
@@ -238,37 +241,64 @@ export function PlateContentTabs({ readme, license, tree }: Props) {
 
   const content = active === "readme" ? readme : active === "license" ? license : null
 
-  const markdownComponents = {
-    pre: ({ children, ...props }: ComponentPropsWithoutRef<"pre">) => (
-      <pre
-        {...props}
-        className="my-4 overflow-x-auto border !border-border !bg-muted dark:!bg-card !p-6 text-xs leading-relaxed !text-foreground"
-      >
-        {children}
-      </pre>
-    ),
-    code: ({ inline, className, children, ...props }: ComponentPropsWithoutRef<"code"> & { inline?: boolean }) => {
-      if (inline) {
+  const branchResolved = (branch && branch.trim()) || "main"
+  const githubRepo = repoUrl?.trim() ? repoUrl : undefined
+  const sourceFileInRepo = active === "license" ? "LICENSE" : "README.md"
+
+  const markdownComponents = useMemo(
+    () => ({
+      pre: ({ children, ...props }: ComponentPropsWithoutRef<"pre">) => (
+        <pre
+          {...props}
+          className="my-4 overflow-x-auto border !border-border !bg-muted dark:!bg-card !p-6 text-xs leading-relaxed !text-foreground"
+        >
+          {children}
+        </pre>
+      ),
+      code: ({ inline, className, children, ...props }: ComponentPropsWithoutRef<"code"> & { inline?: boolean }) => {
+        if (inline) {
+          return (
+            <code
+              {...props}
+              className="rounded-none border border-border bg-muted/80 px-2 py-1 font-mono text-xs text-foreground dark:bg-card"
+            >
+              {children}
+            </code>
+          )
+        }
+
         return (
           <code
             {...props}
-            className="rounded-none border border-border bg-muted/80 px-2 py-1 font-mono text-xs text-foreground dark:bg-card"
+            className={className ? `${className} !text-foreground font-mono` : "!text-foreground font-mono"}
           >
             {children}
           </code>
         )
-      }
-
-      return (
-        <code
-          {...props}
-          className={className ? `${className} !text-foreground font-mono` : "!text-foreground font-mono"}
-        >
-          {children}
-        </code>
-      )
-    },
-  }
+      },
+      a: ({ href, children, ...props }: ComponentPropsWithoutRef<"a">) => {
+        const resolved = resolveRepoMarkdownHref(href, githubRepo, branchResolved, sourceFileInRepo)
+        const openNewTab = /^https?:\/\//i.test(resolved)
+        return (
+          <a
+            {...props}
+            href={resolved}
+            {...(openNewTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          >
+            {children}
+          </a>
+        )
+      },
+      img: ({ src, alt, ...props }: ComponentPropsWithoutRef<"img">) => {
+        const srcStr = typeof src === "string" ? src : undefined
+        const resolved = srcStr
+          ? resolveRepoMarkdownHref(srcStr, githubRepo, branchResolved, sourceFileInRepo)
+          : srcStr
+        return <img {...props} src={resolved} alt={alt ?? ""} />
+      },
+    }),
+    [githubRepo, branchResolved, sourceFileInRepo],
+  )
 
   return (
     <div>

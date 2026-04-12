@@ -53,7 +53,7 @@ func (c *SyncCommand) Run() lib.CommandRunner {
 					if p == nil {
 						continue
 					}
-					syncOnePlate(ctx, logger, plateRepo, plateTagRepo, p, defaultSyncInterval)
+					syncOnePlate(ctx, logger, plateRepo, plateTagRepo, env, p, defaultSyncInterval)
 				}
 			}
 
@@ -67,6 +67,7 @@ func syncOnePlate(
 	logger lib.Logger,
 	plateRepo repository.PlateRepository,
 	plateTagRepo repository.PlateTagRepository,
+	env lib.Env,
 	plate *model.Plate,
 	defaultSyncInterval time.Duration,
 ) {
@@ -193,7 +194,7 @@ func syncOnePlate(
 	}
 
 	if isVerified {
-		if err := syncPlateManifest(ctx, plateRepo, plateTagRepo, plate, manifest, metadataJSON); err != nil {
+		if err := syncPlateManifest(ctx, plateRepo, plateTagRepo, env, plate, manifest, metadataJSON); err != nil {
 			failed := model.SyncStatusFailed
 			errText := fmt.Sprintf("failed to persist manifest changes: %v", err)
 			desiredVisibility = model.PlateVisibilityPrivate
@@ -249,12 +250,13 @@ func syncPlateManifest(
 	ctx context.Context,
 	plateRepo repository.PlateRepository,
 	plateTagRepo repository.PlateTagRepository,
+	env lib.Env,
 	plate *model.Plate,
 	manifest *syncKickplateYAML,
 	metadataJSON []byte,
 ) error {
 	plate.Name = manifest.Name
-	plate.Category = manifest.Category
+	plate.Category = lib.NormalizePlateCategory(env, manifest.Category)
 	plate.Metadata = metadataJSON
 
 	if strings.TrimSpace(manifest.Description) == "" {

@@ -3,9 +3,11 @@ package plate
 import (
 	"context"
 	"net/url"
+	"sort"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/kickplate/api/lib"
 	"github.com/kickplate/api/model"
 	"github.com/kickplate/api/repository"
 )
@@ -79,6 +81,7 @@ func (s *plateService) GetBySlug(ctx context.Context, slug string, requesterID u
 }
 
 func (s *plateService) List(ctx context.Context, filter repository.PlateFilter, requesterID uuid.UUID) ([]*model.Plate, int, error) {
+	filter.Categories = lib.NormalizePlateCategoryFilter(s.env, filter.Categories)
 	plates, total, err := s.plates.List(ctx, filter)
 	if err != nil {
 		return nil, 0, err
@@ -124,11 +127,25 @@ func (s *plateService) List(ctx context.Context, filter repository.PlateFilter, 
 }
 
 func (s *plateService) GetStats(ctx context.Context) (*repository.PlateStats, error) {
-	return s.plates.GetStats(ctx)
+	st, err := s.plates.GetStats(ctx)
+	if err != nil {
+		return nil, err
+	}
+	counts, err := s.GetCategoryCounts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	st.TotalCategories = int64(len(counts))
+	return st, nil
 }
 
 func (s *plateService) GetFilterOptions(ctx context.Context) (*repository.PlateFilterOptions, error) {
-	return s.plates.GetFilterOptions(ctx)
+	opts, err := s.plates.GetFilterOptions(ctx)
+	if err != nil {
+		return nil, err
+	}
+	opts.Categories = lib.PlateCategorySlugs(s.env)
+	return opts, nil
 }
 
 func (s *plateService) GetMonthlyGrowth(ctx context.Context, months int) ([]repository.MonthlyCount, error) {
@@ -136,7 +153,28 @@ func (s *plateService) GetMonthlyGrowth(ctx context.Context, months int) ([]repo
 }
 
 func (s *plateService) GetCategoryCounts(ctx context.Context) ([]repository.CategoryCount, error) {
-	return s.plates.GetCategoryCounts(ctx)
+	rows, err := s.plates.GetCategoryCounts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	merged := make(map[string]int64)
+	for _, row := range rows {
+		k := lib.NormalizePlateCategory(s.env, row.Category)
+		merged[k] += row.Count
+	}
+	out := make([]repository.CategoryCount, 0, len(merged))
+	for k, v := range merged {
+		if v > 0 {
+			out = append(out, repository.CategoryCount{Category: k, Count: v})
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Count != out[j].Count {
+			return out[i].Count > out[j].Count
+		}
+		return out[i].Category < out[j].Category
+	})
+	return out, nil
 }
 
 func (s *plateService) GetTopBookmarked(ctx context.Context, limit int) ([]repository.PlateRanked, error) {

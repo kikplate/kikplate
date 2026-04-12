@@ -5,6 +5,7 @@ import { usePlates } from "@/src/presentation/hooks/usePlates"
 import { GitBranch, Star, Heart, ArrowRight, Sparkles, Terminal, CheckCircle2 } from "lucide-react"
 import { formatCount } from "@/src/presentation/utils/plateUtils"
 import type { Plate } from "@/src/domain/entities/Plate"
+import { PlateBadgeChips } from "@/src/presentation/components/plates/PlateBadgeChips"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +40,7 @@ function FeaturedPlateCard({ plate, index }: { plate: Plate; index: number }) {
             {plate.description}
           </p>
         )}
+        <PlateBadgeChips badges={plate.badges} max={3} className="mt-2" />
       </div>
 
       <div className="mt-auto flex items-center justify-between border-t border-border pt-3">
