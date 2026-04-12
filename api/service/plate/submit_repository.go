@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kickplate/api/lib"
 	"github.com/kickplate/api/model"
 	"gorm.io/gorm"
 )
@@ -79,7 +80,7 @@ func (s *plateService) SubmitRepository(ctx context.Context, accountID uuid.UUID
 		Type:                   model.PlateTypeRepository,
 		Slug:                   slugify(kp.Name),
 		Name:                   kp.Name,
-		Category:               kp.Category,
+		Category:               lib.NormalizePlateCategory(s.env, kp.Category),
 		Status:                 model.PlateStatusPending,
 		Visibility:             model.PlateVisibilityPrivate,
 		Metadata:               metadata,

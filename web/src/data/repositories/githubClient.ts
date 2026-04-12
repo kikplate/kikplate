@@ -3,7 +3,7 @@ function repoToRaw(repoUrl: string, branch: string, file: string): string {
   return `https://raw.githubusercontent.com/${path}/${branch}/${file}`
 }
 
-function repoToPath(repoUrl: string): string {
+export function repoToPath(repoUrl: string): string {
   return repoUrl
     .replace("https://github.com/", "")
     .replace("http://github.com/", "")

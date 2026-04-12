@@ -3,10 +3,11 @@
 import Link from "next/link"
 import {
   GitBranch, Heart, Star,
-  Shield, Tag, CheckCircle2, AlertTriangle
+  Tag, CheckCircle2, AlertTriangle
 } from "lucide-react"
 import type { Plate } from "@/src/domain/entities/Plate"
-import { formatCount, tierColour } from "@/src/presentation/utils/plateUtils"
+import { formatCount } from "@/src/presentation/utils/plateUtils"
+import { PlateBadgeChips } from "@/src/presentation/components/plates/PlateBadgeChips"
 
 export function PlateCard({ plate }: { plate: Plate }) {
   return (
@@ -60,19 +61,7 @@ export function PlateCard({ plate }: { plate: Plate }) {
         </div>
       )}
 
-      {plate.badges && plate.badges.length > 0 && (
-        <div className="px-4 pb-3 flex flex-wrap gap-1">
-          {plate.badges.slice(0, 3).map((pb) => pb.badge && (
-            <span
-              key={pb.id}
-              className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] border font-medium ${tierColour(pb.badge.tier)}`}
-            >
-              <Shield className="h-2.5 w-2.5" />
-              {pb.badge.name}
-            </span>
-          ))}
-        </div>
-      )}
+      <PlateBadgeChips badges={plate.badges} max={3} className="px-4 pb-3" />
 
       <div className="mt-auto flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
         <div className="flex items-center gap-2">

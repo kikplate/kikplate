@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Heart, Star } from "lucide-react"
 import type { Plate } from "@/src/domain/entities/Plate"
 import { formatCount } from "@/src/presentation/utils/plateUtils"
+import { PlateBadgeChips } from "@/src/presentation/components/plates/PlateBadgeChips"
 
 export function RelatedPlates({
   plates,
@@ -34,6 +35,7 @@ export function RelatedPlates({
                   {p.description}
                 </span>
               ) : null}
+              <PlateBadgeChips badges={p.badges} max={2} className="mt-1.5" />
               <span className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
                 {p.avg_rating > 0 ? (
                   <span className="inline-flex items-center gap-1">

@@ -80,6 +80,7 @@ type Env struct {
 	SMTP              SMTPConfig
 	Customization     Customization
 	Badges            []BadgeConfig
+	PlateCategories   []PlateCategoryConfig
 }
 
 func (e Env) GetOAuthProvider(name string) (OAuthProvider, bool) {
@@ -279,6 +280,11 @@ func NewEnv() Env {
 	var badges []BadgeConfig
 	if err := viper.UnmarshalKey("badges", &badges); err == nil {
 		env.Badges = badges
+	}
+
+	var plateCategories []PlateCategoryConfig
+	if err := viper.UnmarshalKey("plate_categories", &plateCategories); err == nil {
+		env.PlateCategories = plateCategories
 	}
 
 	return env

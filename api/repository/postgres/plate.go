@@ -104,6 +104,7 @@ func (r *plateRepository) List(ctx context.Context, filter repository.PlateFilte
 	if filter.Search != "" {
 		result = q.
 			Preload("Tags").
+			Preload("Badges.Badge").
 			Preload("Organization").
 			Preload("Organization.Owner").
 			Offset((page - 1) * limit).
@@ -113,6 +114,7 @@ func (r *plateRepository) List(ctx context.Context, filter repository.PlateFilte
 	} else {
 		result = q.
 			Preload("Tags").
+			Preload("Badges.Badge").
 			Preload("Organization").
 			Preload("Organization.Owner").
 			Offset((page - 1) * limit).

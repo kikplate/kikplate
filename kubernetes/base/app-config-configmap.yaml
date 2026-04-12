@@ -67,6 +67,68 @@ data:
         - Postgresql docker-compose
         - Nginx
 
+    plate_categories:
+      - slug: backend
+        label: Backend
+        description: APIs, services, microservices
+        icon: server
+      - slug: frontend
+        label: Frontend
+        description: Web UIs, SPAs, SSR apps
+        icon: globe
+      - slug: fullstack
+        label: Full Stack
+        description: End-to-end project starters
+        icon: layers
+      - slug: mobile
+        label: Mobile
+        description: iOS, Android, cross-platform
+        icon: smartphone
+      - slug: cli
+        label: CLI
+        description: Command line tools & scripts
+        icon: terminal
+      - slug: devops
+        label: DevOps
+        description: Docker, CI/CD, infrastructure
+        icon: wrench
+      - slug: library
+        label: Library
+        description: Reusable packages and SDKs
+        icon: package
+      - slug: database
+        label: Database
+        description: Schemas, migrations, seeds
+        icon: database
+      - slug: cloud
+        label: Cloud
+        description: AWS, GCP, Azure starters
+        icon: cloud
+      - slug: security
+        label: Security
+        description: Auth, encryption, compliance
+        icon: shield
+      - slug: iot
+        label: IoT
+        description: Embedded, edge, hardware
+        icon: cpu
+      - slug: game
+        label: Game Dev
+        description: Game engines, frameworks
+        icon: gamepad-2
+      - slug: documentation
+        label: Documentation
+        description: Docs sites, wikis, guides
+        icon: book-open
+      - slug: ai-ml
+        label: AI / ML
+        description: Machine learning, LLMs, data
+        icon: bot
+      - slug: other
+        label: Other
+        description: Everything else
+        icon: more-horizontal
+
     badges:
       - slug: official
         name: Official

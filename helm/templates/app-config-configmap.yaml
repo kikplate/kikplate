@@ -57,3 +57,11 @@ data:
         icon: {{ .icon }}
         tier: {{ .tier }}
       {{- end }}
+
+    plate_categories:
+      {{- range .Values.config.plateCategories }}
+      - slug: {{ .slug }}
+        label: {{ .label | quote }}
+        description: {{ .description | quote }}
+        icon: {{ .icon }}
+      {{- end }}

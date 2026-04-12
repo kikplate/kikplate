@@ -39,6 +39,17 @@ tags:
   - chi
 ```
 
+#### Manifest fields
+
+| Field | Required | Notes |
+|-------|----------|--------|
+| `name` | Yes | Becomes the plate display name and basis for the public slug. Must be unique across the platform when combined with the owner namespace. |
+| `owner` | Yes | Must match the submitting user’s **username** or the selected **organization name**. |
+| `description` | No | Free text shown on the plate page. |
+| `category` | No | Must be one of the **slugs** defined under `plate_categories` in the server `config.yaml` (match is case-insensitive). If omitted or not recognized, the platform stores the template under the **other** category—submission does not fail. See [Configuration](configuration.md#plate_categories). |
+| `tags` | No | A list of short labels used for search and filters. |
+| `verification_token` | After submit | Omitted on first submit. After Kikplate issues a token, add it to the file and run verify so the plate can go public. |
+
 ### Badge
 
 Badges are quality signals awarded to plates. They are defined in `config/config.yaml` under the `badges` key and seeded into the database. There are two tiers:

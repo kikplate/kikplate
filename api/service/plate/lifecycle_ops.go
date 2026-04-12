@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kickplate/api/lib"
 	"github.com/kickplate/api/model"
 	"gorm.io/gorm"
 )
@@ -27,7 +28,7 @@ func (s *plateService) Update(ctx context.Context, plateID uuid.UUID, accountID 
 		plate.Description = input.Description
 	}
 	if input.Category != nil {
-		plate.Category = *input.Category
+		plate.Category = lib.NormalizePlateCategory(s.env, *input.Category)
 	}
 	if input.Visibility != nil {
 		plate.Visibility = *input.Visibility
