@@ -19,12 +19,27 @@ builds:
     goarch:
       - amd64
       - arm64
+  - id: cli-windows
+    dir: cli
+    main: .
+    binary: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
 
 archives:
-  - id: cli-archives
+  - id: cli-unix-archives
     ids:
       - cli
     formats: [tar.gz]
+    name_template: "{{ .Binary }}"
+  - id: cli-windows-archives
+    ids:
+      - cli-windows
+    formats: [zip]
     name_template: "{{ .Binary }}"
 
 checksum:
@@ -33,6 +48,8 @@ checksum:
 
 brews:
   - name: kikplate
+    ids:
+      - cli-unix-archives
     url_template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     repository:
       owner: kikplate
@@ -46,6 +63,24 @@ brews:
     homepage: "https://github.com/kikplate/kikplate"
     description: "Command-line interface for the Kikplate plate registry"
     license: "Apache-2.0"
+
+scoops:
+  - name: kikplate
+    ids:
+      - cli-windows-archives
+    repository:
+      owner: kikplate
+      name: scoop-bucket
+      branch: main
+      token: "{{ .Env.SCOOP_BUCKET_GITHUB_TOKEN }}"
+    commit_author:
+      name: github-actions[bot]
+      email: 41898282+github-actions[bot]@users.noreply.github.com
+    commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: "https://github.com/kikplate/kikplate"
+    description: "Command-line interface for the Kikplate plate registry"
+    license: "Apache-2.0"
+    url_template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
 release:
   disable: true
