@@ -15,6 +15,7 @@ function CallbackHandler() {
     if (token) {
       AuthService.setToken(token)
       router.replace("/")
+      router.refresh()
     } else if (error) {
       router.replace("/login?error=" + error)
     } else {

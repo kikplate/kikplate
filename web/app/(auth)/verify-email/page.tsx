@@ -39,7 +39,10 @@ function VerifyEmailContent() {
         setStatus("success")
 
         redirectTimerRef.current = setTimeout(() => {
-          if (!cancelled) router.replace("/")
+          if (!cancelled) {
+            router.replace("/")
+            router.refresh()
+          }
         }, 1200)
       } catch (err) {
         if (cancelled) return

@@ -2,6 +2,7 @@ package lib
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 )
 
@@ -169,7 +171,10 @@ func (l Logger) GetGormLogger() *GormLogger {
 		return &GormLogger{
 			Logger: newSugaredLogger(logger),
 			Config: gormlogger.Config{
-				LogLevel: gormlogger.Info,
+				SlowThreshold:             500 * time.Millisecond,
+				LogLevel:                  gormlogger.Warn,
+				IgnoreRecordNotFoundError: true,
+				ParameterizedQueries:      true,
 			},
 		}
 	}
@@ -182,7 +187,10 @@ func (l Logger) GetGormLogger() *GormLogger {
 	return &GormLogger{
 		Logger: newSugaredLogger(logger),
 		Config: gormlogger.Config{
-			LogLevel: gormlogger.Info,
+			SlowThreshold:             500 * time.Millisecond,
+			LogLevel:                  gormlogger.Warn,
+			IgnoreRecordNotFoundError: true,
+			ParameterizedQueries:      true,
 		},
 	}
 }
@@ -361,22 +369,27 @@ func (l GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (strin
 	if l.LogLevel <= 0 {
 		return
 	}
+
+	if err != nil && l.IgnoreRecordNotFoundError && errors.Is(err, gorm.ErrRecordNotFound) {
+		return
+	}
+
+	if err != nil && l.LogLevel >= gormlogger.Error {
+		sql, rows := fc()
+		l.SugaredLogger.Error("[", time.Since(begin).Milliseconds(), " ms, ", rows, " rows] ", "sql -> ", sql, " error -> ", err)
+		return
+	}
+
 	elapsed := time.Since(begin)
+	if l.LogLevel >= gormlogger.Warn && l.SlowThreshold > 0 && elapsed > l.SlowThreshold {
+		sql, rows := fc()
+		l.SugaredLogger.Warn("[", elapsed.Milliseconds(), " ms, ", rows, " rows] ", "slow sql -> ", sql)
+		return
+	}
+
 	if l.LogLevel >= gormlogger.Info {
 		sql, rows := fc()
 		l.Debug("[", elapsed.Milliseconds(), " ms, ", rows, " rows] ", "sql -> ", sql)
-		return
-	}
-
-	if l.LogLevel >= gormlogger.Warn {
-		sql, rows := fc()
-		l.SugaredLogger.Warn("[", elapsed.Milliseconds(), " ms, ", rows, " rows] ", "sql -> ", sql)
-		return
-	}
-
-	if l.LogLevel >= gormlogger.Error {
-		sql, rows := fc()
-		l.SugaredLogger.Error("[", elapsed.Milliseconds(), " ms, ", rows, " rows] ", "sql -> ", sql)
 		return
 	}
 }

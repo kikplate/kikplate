@@ -13,6 +13,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { LogOut, User, UserPlus, Sun, Moon } from "lucide-react"
 import { useTheme } from "next-themes"
 
@@ -24,6 +33,7 @@ export function Navbar() {
   const { theme, setTheme } = useTheme()
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -139,7 +149,7 @@ export function Navbar() {
                 </div>
                 <div className="border-t border-border py-1">
                   <DropdownMenuItem
-                    onClick={handleLogout}
+                    onClick={() => setLogoutDialogOpen(true)}
                     className="cursor-pointer rounded-none gap-2 text-sm text-destructive focus:text-destructive"
                   >
                     <LogOut className="h-4 w-4" />
@@ -192,6 +202,31 @@ export function Navbar() {
         </div>
 
       </div>
+
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign out?</DialogTitle>
+            <DialogDescription>
+              You will be signed out of your account on this device.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLogoutDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setLogoutDialogOpen(false)
+                handleLogout()
+              }}
+            >
+              Sign out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </nav>
   )
 }
