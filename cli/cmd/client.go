@@ -100,14 +100,37 @@ func decodeJSON(resp *http.Response, target any) error {
 
 func decodeJSONStatus(resp *http.Response, expect int, target any) error {
 	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
 	if resp.StatusCode == http.StatusUnauthorized {
 		return fmt.Errorf("unauthorized — run 'kikplate login' first")
 	}
 	if resp.StatusCode != expect {
-		body, _ := io.ReadAll(resp.Body)
+		if looksLikeHTML(resp, body) {
+			return fmt.Errorf("server returned HTML instead of JSON; check server.address points to the API base URL (for kikplate.dev use https://kikplate.dev/api)")
+		}
 		return fmt.Errorf("server returned %d: %s", resp.StatusCode, string(body))
 	}
-	return json.NewDecoder(resp.Body).Decode(target)
+	if len(body) == 0 {
+		return nil
+	}
+	if looksLikeHTML(resp, body) {
+		return fmt.Errorf("server returned HTML instead of JSON; check server.address points to the API base URL (for kikplate.dev use https://kikplate.dev/api)")
+	}
+	if err := json.Unmarshal(body, target); err != nil {
+		return fmt.Errorf("cannot parse server response as JSON: %w", err)
+	}
+	return nil
+}
+
+func looksLikeHTML(resp *http.Response, body []byte) bool {
+	contentType := strings.ToLower(resp.Header.Get("Content-Type"))
+	if strings.Contains(contentType, "text/html") {
+		return true
+	}
+
+	trimmed := strings.TrimSpace(strings.ToLower(string(body)))
+	return strings.HasPrefix(trimmed, "<!doctype html") || strings.HasPrefix(trimmed, "<html")
 }
 
 func (s *Session) GetJSON(path string, query url.Values, target any) error {
@@ -138,6 +161,9 @@ func (s *Session) FetchPlateBySlug(slug string) (*LocalPlate, error) {
 	}
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
+		if looksLikeHTML(resp, body) {
+			return nil, fmt.Errorf("server returned HTML instead of JSON; check server.address points to the API base URL (for kikplate.dev use https://kikplate.dev/api)")
+		}
 		return nil, fmt.Errorf("server returned %d: %s", resp.StatusCode, string(body))
 	}
 
@@ -147,7 +173,11 @@ func (s *Session) FetchPlateBySlug(slug string) (*LocalPlate, error) {
 		Description string  `json:"description"`
 		RepoURL     *string `json:"repo_url"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&plate); err != nil {
+	body, _ := io.ReadAll(resp.Body)
+	if looksLikeHTML(resp, body) {
+		return nil, fmt.Errorf("server returned HTML instead of JSON; check server.address points to the API base URL (for kikplate.dev use https://kikplate.dev/api)")
+	}
+	if err := json.Unmarshal(body, &plate); err != nil {
 		return nil, fmt.Errorf("cannot parse server response: %w", err)
 	}
 

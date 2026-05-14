@@ -1,8 +1,12 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/kickplate/api/handler/middleware"
@@ -93,6 +97,26 @@ func (h AuthHandler) LoginLocal(w http.ResponseWriter, r *http.Request) {
 
 func (h AuthHandler) OAuthRedirect(w http.ResponseWriter, r *http.Request) {
 	provider := chi.URLParam(r, "provider")
+	h.logger.Infof("=== OAuthRedirect called for provider: %s ===", provider)
+	h.logger.Infof("Raw query: %s", r.URL.RawQuery)
+
+	cliRedirectURI := normalizeCLIRedirectURI(r.URL.Query().Get("redirect_uri"))
+	if cliRedirectURI == "" {
+		rawCliCallback := r.URL.Query().Get("cli_callback")
+		if rawCliCallback != "" {
+			preview := rawCliCallback
+			if len(preview) > 50 {
+				preview = preview[:50]
+			}
+			h.logger.Infof("received cli_callback: %s", preview)
+		}
+		cliRedirectURI = normalizeCLIRedirectURI(decodeCLICallback(rawCliCallback))
+		if cliRedirectURI != "" {
+			h.logger.Infof("decoded and normalized CLI redirect URI: %s", cliRedirectURI)
+		} else if rawCliCallback != "" {
+			h.logger.Warnf("failed to decode/normalize cli_callback")
+		}
+	}
 
 	result, err := h.authService.OAuthRedirect(r.Context(), auth.OAuthRedirectInput{
 		Provider: provider,
@@ -111,6 +135,28 @@ func (h AuthHandler) OAuthRedirect(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		SameSite: http.SameSiteLaxMode,
 	})
+
+	if cliRedirectURI != "" {
+		h.logger.Infof("setting oauth_redirect_uri cookie to: %s", cliRedirectURI)
+		http.SetCookie(w, &http.Cookie{
+			Name:     "oauth_redirect_uri",
+			Value:    url.QueryEscape(cliRedirectURI),
+			MaxAge:   300,
+			HttpOnly: true,
+			Path:     "/",
+			SameSite: http.SameSiteLaxMode,
+		})
+	} else {
+		h.logger.Warnf("no CLI redirect URI found, using default frontend callback")
+		http.SetCookie(w, &http.Cookie{
+			Name:     "oauth_redirect_uri",
+			Value:    "",
+			MaxAge:   -1,
+			HttpOnly: true,
+			Path:     "/",
+			SameSite: http.SameSiteLaxMode,
+		})
+	}
 
 	http.Redirect(w, r, result.URL, http.StatusTemporaryRedirect)
 }
@@ -131,6 +177,22 @@ func (h AuthHandler) OAuthCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	frontendBase := h.env.FrontendURL
+	redirectBase := strings.TrimRight(frontendBase, "/") + "/auth/callback"
+	if redirectCookie, err := r.Cookie("oauth_redirect_uri"); err == nil {
+		h.logger.Infof("found oauth_redirect_uri cookie: %s", redirectCookie.Value)
+		if decoded, decErr := url.QueryUnescape(redirectCookie.Value); decErr == nil {
+			if normalized := normalizeCLIRedirectURI(decoded); normalized != "" {
+				h.logger.Infof("using CLI redirect: %s", normalized)
+				redirectBase = normalized
+			} else {
+				h.logger.Warnf("failed to normalize CLI redirect from cookie: %s", decoded)
+			}
+		} else {
+			h.logger.Warnf("failed to unescape cookie value: %v", decErr)
+		}
+	} else {
+		h.logger.Warnf("no oauth_redirect_uri cookie found, using default: %s", redirectBase)
+	}
 
 	result, err := h.authService.OAuthCallback(r.Context(), auth.OAuthCallbackInput{
 		Provider: provider,
@@ -139,11 +201,67 @@ func (h AuthHandler) OAuthCallback(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		h.logger.Errorf("oauth callback failed: %v", err)
-		http.Redirect(w, r, frontendBase+"/login?error=oauth_failed", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, appendQueryParam(redirectBase, "error", "oauth_failed"), http.StatusTemporaryRedirect)
 		return
 	}
 
-	http.Redirect(w, r, frontendBase+"/auth/callback?token="+result.Token, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, appendQueryParam(redirectBase, "token", result.Token), http.StatusTemporaryRedirect)
+}
+
+func normalizeCLIRedirectURI(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+
+	parsed, err := url.Parse(raw)
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return ""
+	}
+
+	scheme := strings.ToLower(parsed.Scheme)
+	if scheme != "http" && scheme != "https" {
+		return ""
+	}
+
+	host := strings.ToLower(parsed.Hostname())
+	if host != "127.0.0.1" && host != "localhost" {
+		return ""
+	}
+
+	if parsed.Path == "" {
+		parsed.Path = "/"
+	}
+
+	return parsed.String()
+}
+
+func appendQueryParam(base, key, value string) string {
+	u, err := url.Parse(base)
+	if err != nil {
+		if strings.Contains(base, "?") {
+			return fmt.Sprintf("%s&%s=%s", base, key, url.QueryEscape(value))
+		}
+		return fmt.Sprintf("%s?%s=%s", base, key, url.QueryEscape(value))
+	}
+	q := u.Query()
+	q.Set(key, value)
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
+func decodeCLICallback(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+
+	decoded, err := base64.RawURLEncoding.DecodeString(raw)
+	if err != nil {
+		return ""
+	}
+
+	return string(decoded)
 }
 
 func (h AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
