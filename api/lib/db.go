@@ -1,7 +1,10 @@
 package lib
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/kickplate/api/model"
@@ -11,6 +14,101 @@ import (
 
 type Database struct {
 	*gorm.DB
+}
+
+type dbConnectionGuard struct {
+	sqlDB     *sql.DB
+	logger    Logger
+	lastCheck atomic.Int64
+	checking  atomic.Int32
+}
+
+func newDBConnectionGuard(sqlDB *sql.DB, logger Logger) *dbConnectionGuard {
+	g := &dbConnectionGuard{
+		sqlDB:  sqlDB,
+		logger: logger,
+	}
+	g.lastCheck.Store(time.Now().UnixNano())
+	return g
+}
+
+func (g *dbConnectionGuard) ensureConnected(ctx context.Context) error {
+	const checkInterval = 5 * time.Second
+	now := time.Now().UnixNano()
+	if now-g.lastCheck.Load() < int64(checkInterval) {
+		return nil
+	}
+
+	if !g.checking.CompareAndSwap(0, 1) {
+		return nil
+	}
+	defer g.checking.Store(0)
+
+	if err := g.pingWithTimeout(ctx, 2*time.Second); err == nil {
+		g.lastCheck.Store(time.Now().UnixNano())
+		return nil
+	}
+
+	g.logger.Warn("Database ping failed; attempting reconnect checks")
+	var lastErr error
+	for attempt := 1; attempt <= 5; attempt++ {
+		if attempt > 1 {
+			time.Sleep(time.Duration(attempt) * time.Second)
+		}
+		if err := g.pingWithTimeout(ctx, 3*time.Second); err == nil {
+			g.lastCheck.Store(time.Now().UnixNano())
+			g.logger.Infof("Database connection recovered after %d attempt(s)", attempt)
+			return nil
+		} else {
+			lastErr = err
+		}
+	}
+
+	return fmt.Errorf("database ping failed after retries: %w", lastErr)
+}
+
+func (g *dbConnectionGuard) pingWithTimeout(ctx context.Context, timeout time.Duration) error {
+	pctx, cancel := context.WithTimeout(context.Background(), timeout)
+	if ctx != nil {
+		if deadline, ok := ctx.Deadline(); ok {
+			if remaining := time.Until(deadline); remaining < timeout {
+				cancel()
+				pctx, cancel = context.WithTimeout(context.Background(), remaining)
+			}
+		}
+	}
+	defer cancel()
+	return g.sqlDB.PingContext(pctx)
+}
+
+func installDBConnectionGuard(db *gorm.DB, guard *dbConnectionGuard, logger Logger) {
+	hook := func(tx *gorm.DB) {
+		if tx == nil || tx.Statement == nil {
+			return
+		}
+		if err := guard.ensureConnected(tx.Statement.Context); err != nil {
+			tx.AddError(err)
+		}
+	}
+
+	if err := db.Callback().Create().Before("gorm:create").Register("kikplate:db_guard_create", hook); err != nil {
+		logger.Warnf("failed to register DB guard callback %s: %v", "kikplate:db_guard_create", err)
+	}
+	if err := db.Callback().Query().Before("gorm:query").Register("kikplate:db_guard_query", hook); err != nil {
+		logger.Warnf("failed to register DB guard callback %s: %v", "kikplate:db_guard_query", err)
+	}
+	if err := db.Callback().Update().Before("gorm:update").Register("kikplate:db_guard_update", hook); err != nil {
+		logger.Warnf("failed to register DB guard callback %s: %v", "kikplate:db_guard_update", err)
+	}
+	if err := db.Callback().Delete().Before("gorm:delete").Register("kikplate:db_guard_delete", hook); err != nil {
+		logger.Warnf("failed to register DB guard callback %s: %v", "kikplate:db_guard_delete", err)
+	}
+	if err := db.Callback().Row().Before("gorm:row").Register("kikplate:db_guard_row", hook); err != nil {
+		logger.Warnf("failed to register DB guard callback %s: %v", "kikplate:db_guard_row", err)
+	}
+	if err := db.Callback().Raw().Before("gorm:raw").Register("kikplate:db_guard_raw", hook); err != nil {
+		logger.Warnf("failed to register DB guard callback %s: %v", "kikplate:db_guard_raw", err)
+	}
 }
 
 func NewDatabase(env Env, logger Logger) Database {
@@ -50,9 +148,11 @@ func NewDatabase(env Env, logger Logger) Database {
 	}
 
 	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
-	sqlDB.SetConnMaxIdleTime(10 * time.Minute)
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+
+	installDBConnectionGuard(db, newDBConnectionGuard(sqlDB, logger), logger)
 
 	logger.Info("Database connection established")
 

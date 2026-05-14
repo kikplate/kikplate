@@ -44,7 +44,13 @@ export function useLogin() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (input: LoginInput) => loginUseCase.execute(input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["me"] })
+      await qc.fetchQuery({
+        queryKey: ["me"],
+        queryFn: () => getMeUseCase.execute(),
+      })
+    },
   })
 }
 
