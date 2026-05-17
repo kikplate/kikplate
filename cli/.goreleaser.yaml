@@ -6,7 +6,7 @@ builds:
   - id: cli
     dir: cli
     main: .
-    binary: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    binary: kikplate
     env:
       - CGO_ENABLED=0
     goos:
@@ -18,7 +18,7 @@ builds:
   - id: cli-windows
     dir: cli
     main: .
-    binary: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    binary: kikplate
     env:
       - CGO_ENABLED=0
     goos:
