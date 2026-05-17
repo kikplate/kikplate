@@ -145,6 +145,7 @@ jobs:
 
       - name: Publish formula to tap
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.resolve.outputs.version_plain }}
         run: |
           set -euo pipefail
