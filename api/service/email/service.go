@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/smtp"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/kickplate/api/lib"
@@ -95,9 +96,11 @@ func (s *Service) templateData(extra map[string]any) map[string]any {
 }
 
 func resolveLogoURL(env lib.Env) string {
+	const defaultLogoURL = "https://kikplate.dev/kikplate-logo-on-dark.svg"
+
 	logo := strings.TrimSpace(env.Customization.Logo)
 	if logo == "" {
-		logo = "/kikplate-logo-on-dark.svg"
+		return defaultLogoURL
 	}
 
 	if strings.HasPrefix(strings.ToLower(logo), "http://") || strings.HasPrefix(strings.ToLower(logo), "https://") {
@@ -106,7 +109,7 @@ func resolveLogoURL(env lib.Env) string {
 
 	base := strings.TrimRight(strings.TrimSpace(env.FrontendURL), "/")
 	if base == "" {
-		base = "http://localhost:3000"
+		return defaultLogoURL
 	}
 
 	if strings.HasPrefix(logo, "/") {
@@ -160,7 +163,7 @@ func sendSMTPMail(cfg lib.SMTPConfig, from string, to []string, message []byte) 
 		return nil
 	}
 
-	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	addr := net.JoinHostPort(cfg.Host, strconv.Itoa(cfg.Port))
 	tlsConfig := &tls.Config{ServerName: cfg.Host}
 
 	var (
