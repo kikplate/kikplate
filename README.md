@@ -43,13 +43,14 @@ git clone https://github.com/your-org/kikplate.git
 cd kikplate
 
 cp config/examples/config.yaml.example config/config.yaml
-# Edit config/config.yaml — set database.dsn and jwt_secret at minimum.
+# Edit config/config.yaml for your local settings.
+# Docker Compose overrides the container DB connection to use host `postgres`.
 
 docker compose up -d
-docker compose exec api ./api db:seed
 ```
 
 The API is available at `http://localhost:3001` and the web UI at `http://localhost:3000`.
+Database tables are created automatically on startup via the API service migrations.
 
 Install the CLI to interact from a terminal.
 
@@ -140,4 +141,3 @@ kubernetes/   Kustomize manifests for direct kubectl deployments
 ## License
 
 [LICENSE](LICENSE)
-
