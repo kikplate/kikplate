@@ -5,13 +5,19 @@ ARG TARGETARCH
 
 RUN apk add --no-cache git
 
-WORKDIR /app
+WORKDIR /src
 
-COPY go.mod go.sum ./
+COPY api/go.mod api/go.sum ./api/
+COPY pkg/generator/go.mod ./pkg/generator/
+
+WORKDIR /src/api
 RUN go mod download
 
-COPY . .
+WORKDIR /src
+COPY api ./api
+COPY pkg ./pkg
 
+WORKDIR /src/api
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-s -w" -o /app/kikplate-api .
 
 FROM alpine:3.21

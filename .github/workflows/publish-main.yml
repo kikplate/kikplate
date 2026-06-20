@@ -54,7 +54,7 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v6
         with:
-          context: ./api
+          context: .
           file: ./api/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
