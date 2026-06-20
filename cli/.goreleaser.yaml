@@ -42,11 +42,13 @@ checksum:
   name_template: checksums.txt
   algorithm: sha256
 
-brews:
+homebrew_casks:
   - name: kik
     ids:
       - cli-unix-archives
-    url_template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url:
+      template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+      verified: github.com/kikplate/kikplate/
     repository:
       owner: kikplate
       name: homebrew-kik
@@ -55,10 +57,9 @@ brews:
     commit_author:
       name: github-actions[bot]
       email: 41898282+github-actions[bot]@users.noreply.github.com
-    directory: Formula
     homepage: "https://github.com/kikplate/kikplate"
     description: "Command-line interface for the Kikplate plate registry"
-    license: "Apache-2.0"
+    caveats: "If macOS blocks execution, run: xattr -dr com.apple.quarantine $(brew --prefix)/Caskroom/kik/*/kik"
 
 scoops:
   - name: kik
