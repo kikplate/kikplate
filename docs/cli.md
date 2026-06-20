@@ -1,21 +1,21 @@
 # CLI Reference
 
-The Kikplate CLI (`kikplate`) is a standalone Go binary that lets you browse, submit, manage, and scaffold from plates on any Kikplate server.
+The Kikplate CLI (`kik`) is a standalone Go binary that lets you browse, submit, manage, and scaffold from plates on any Kikplate server.
 
 ## Installation
 
 ### macOS/Linux via Homebrew tap
 
 ```
-brew tap kikplate/kikplate
-brew install kikplate
+brew tap kikplate/kik
+brew install kik
 ```
 
 ### Windows via Scoop (alternative)
 
 ```
-scoop bucket add kikplate https://github.com/kikplate/scoop-bucket.git
-scoop install kikplate
+scoop bucket add kikplate https://github.com/kikplate/scoop-kik.git
+scoop install kik
 ```
 
 ### From release archives
@@ -23,8 +23,8 @@ scoop install kikplate
 Download the archive for your platform from [GitHub Releases](https://github.com/kikplate/kikplate/releases).
 
 ```
-tar -xzf kikplate-<version>-linux-amd64.tar.gz
-sudo mv kikplate-<version>-linux-amd64 /usr/local/bin/kikplate
+tar -xzf kik-<version>-linux-amd64.tar.gz
+sudo mv kik-<version>-linux-amd64 /usr/local/bin/kik
 ```
 
 ### From Source
@@ -32,18 +32,18 @@ sudo mv kikplate-<version>-linux-amd64 /usr/local/bin/kikplate
 ```
 git clone https://github.com/kikplate/kikplate.git
 cd kikplate/cli
-go build -o kikplate .
-sudo mv kikplate /usr/local/bin/kikplate
+go build -o kik .
+sudo mv kik /usr/local/bin/kik
 ```
 
 ## Configuration
 
-The CLI stores its configuration at `~/.kikplate/config.yaml`.
+The CLI stores its configuration at `~/.kik/config.yaml`.
 
 ### Initialize
 
 ```
-kikplate config init
+kik config init
 ```
 
 This creates a default config file:
@@ -60,36 +60,36 @@ auth:
 Every command accepts a global `--config` flag:
 
 ```
-kikplate --config /path/to/config.yaml search --name golang
+kik --config /path/to/config.yaml search --name golang
 ```
 
 ### View Active Config
 
 ```
-kikplate config view
+kik config view
 ```
 
 ### Config File Reference
 
 | Key | Description | Default |
-|-----|-------------|---------|
+|-----|-------------|----------|
 | `server.address` | Base URL of the Kikplate API server | `http://localhost:3001` |
-| `auth.token` | JWT stored after login. Set automatically by `kikplate login`. | `""` |
+| `auth.token` | JWT stored after login. Set automatically by `kik login`. | `""` |
 
 ## Authentication
 
 ### Login
 
 ```
-kikplate login --email you@example.com --password yourpassword
+kik login --email you@example.com --password yourpassword
 ```
 
-On success, the JWT is saved to `~/.kikplate/config.yaml`. Subsequent commands use it automatically.
+On success, the JWT is saved to `~/.kik/config.yaml`. Subsequent commands use it automatically.
 
 ### Who Am I
 
 ```
-kikplate whoami
+kik whoami
 ```
 
 Prints the username, display name, email, and account ID of the authenticated account.
@@ -97,7 +97,7 @@ Prints the username, display name, email, and account ID of the authenticated ac
 ### Logout
 
 ```
-kikplate logout
+kik logout
 ```
 
 Removes the stored token from the config file.
@@ -107,7 +107,7 @@ Removes the stored token from the config file.
 ### Search Plates
 
 ```
-kikplate search [flags]
+kik search [flags]
 ```
 
 | Flag | Description | Default |
@@ -121,9 +121,9 @@ kikplate search [flags]
 Examples:
 
 ```
-kikplate search --name "golang rest"
-kikplate search --category backend --tag gin
-kikplate search --name next.js --limit 10 --page 2
+kik search --name "golang rest"
+kik search --category backend --tag gin
+kik search --name next.js --limit 10 --page 2
 ```
 
 Output:
@@ -139,7 +139,7 @@ Total: 2
 ### Describe a Plate
 
 ```
-kikplate describe myorg/go-chi-rest
+kik describe myorg/go-chi-rest
 ```
 
 Output includes name, category, status, visibility, repository URL, branch, rating, star count, verification status, tags, owner, organization, and timestamps.
@@ -149,37 +149,37 @@ Output includes name, category, status, visibility, repository URL, branch, rati
 ### View Your Plates
 
 ```
-kikplate my plates
+kik my plates
 ```
 
 ### View Your Bookmarks
 
 ```
-kikplate my bookmarks
+kik my bookmarks
 ```
 
 ### View Your Organizations
 
 ```
-kikplate my orgs
+kik my orgs
 ```
 
 ### View Sync Status
 
 ```
-kikplate my sync
+kik my sync
 ```
 
 Shows each plate's sync status, last sync time, and next scheduled sync.
 
 ## Managing Local Plates
 
-The CLI maintains a local list of plates you use frequently at `~/.kikplate/plates.json`. This is separate from the server.
+The CLI maintains a local list of plates you use frequently at `~/.kik/plates.json`. This is separate from the server.
 
 ### Add a Plate Locally
 
 ```
-kikplate plates add myorg/go-chi-rest
+kik plates add myorg/go-chi-rest
 ```
 
 Fetches the plate details from the server and stores them locally.
@@ -187,13 +187,13 @@ Fetches the plate details from the server and stores them locally.
 ### List Local Plates
 
 ```
-kikplate plates list
+kik plates list
 ```
 
 ### Remove a Local Plate
 
 ```
-kikplate plates remove myorg/go-chi-rest
+kik plates remove myorg/go-chi-rest
 ```
 
 ## Submitting a Plate
@@ -201,7 +201,7 @@ kikplate plates remove myorg/go-chi-rest
 Submission requires authentication.
 
 ```
-kikplate submit https://github.com/myorg/my-template
+kik submit https://github.com/myorg/my-template
 ```
 
 Optional flags:
@@ -214,7 +214,7 @@ Optional flags:
 Example for an organization-scoped plate:
 
 ```
-kikplate submit https://github.com/myorg/my-template --org <org-uuid> --branch main
+kik submit https://github.com/myorg/my-template --org <org-uuid> --branch main
 ```
 
 After submission, the CLI prints the assigned slug and the `verification_token` you need to add to your `plate.yaml`.
@@ -224,7 +224,7 @@ After submission, the CLI prints the assigned slug and the `verification_token` 
 After adding the verification token to `plate.yaml` and pushing the commit:
 
 ```
-kikplate verify myorg/my-template
+kik verify myorg/my-template
 ```
 
 On success the plate becomes approved, public, and verified. The CLI confirms the new status.
@@ -236,13 +236,13 @@ Scaffolding creates a new project from a plate. The source repository is cloned,
 ### Scaffold to a Local Directory
 
 ```
-kikplate scaffold myorg/go-chi-rest my-new-project
+kik scaffold myorg/go-chi-rest my-new-project
 ```
 
 ### Scaffold to a Remote Repository
 
 ```
-kikplate scaffold myorg/go-chi-rest https://github.com/you/new-repo.git
+kik scaffold myorg/go-chi-rest https://github.com/you/new-repo.git
 ```
 
 This clones the template, creates an initial commit, and pushes to the remote. If the remote already contains a scaffolded project, the command refuses to push unless you pass `--force`.
@@ -252,7 +252,7 @@ Optional flags:
 | Flag | Description |
 |------|-------------|
 | `--local` | Force scaffold to local directory even if a URL-shaped argument is given |
-| `--force` | Overwrite a remote that was already scaffolded from a kikplate plate |
+| `--force` | Overwrite a remote that was already scaffolded from a kik plate |
 
 ## Generating a Project
 
@@ -261,25 +261,25 @@ Generation renders files from a plate schema and values, then writes output loca
 ### Generate from Registry Plate
 
 ```
-kikplate generate myorg/go-http-server --set projectName=my-app --set modulePath=github.com/you/my-app
+kik generate myorg/go-http-server --set projectName=my-app --set modulePath=github.com/you/my-app
 ```
 
 ### Generate from Local Plate Directory
 
 ```
-kikplate generate --template ./example-plate --set projectName=my-app --set modulePath=github.com/you/my-app
+kik generate --template ./example-plate --set projectName=my-app --set modulePath=github.com/you/my-app
 ```
 
 ### Generate with Values File
 
 ```
-kikplate generate myorg/go-http-server -f values.yaml
+kik generate myorg/go-http-server -f values.yaml
 ```
 
 ### Generate and Push to Remote Repository
 
 ```
-kikplate generate myorg/go-http-server -f values.yaml --repo https://github.com/you/my-app.git
+kik generate myorg/go-http-server -f values.yaml --repo https://github.com/you/my-app.git
 ```
 
 Optional flags:

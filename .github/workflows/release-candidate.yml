@@ -184,7 +184,7 @@ jobs:
 
           for os in darwin linux; do
             for arch in amd64 arm64; do
-              bin="kikplate-${version}-${os}-${arch}"
+              bin="kik-${version}-${os}-${arch}"
               CGO_ENABLED=0 GOOS="${os}" GOARCH="${arch}" go build -o "./dist/${bin}" ./
               tar -C ./dist -czf "./dist/${bin}.tar.gz" "${bin}"
               rm -f "./dist/${bin}"

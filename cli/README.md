@@ -1,18 +1,18 @@
-# Kikplate CLI
+# Kik CLI
 
-A small standalone Go CLI built with Cobra.
+A small standalone Go CLI built with Cobra. Kik is the command-line interface for the Kikplate plate registry.
 
 The command name is:
 
 ```bash
-kikplate <command>
+kik <command>
 ```
 
 For example:
 
 ```bash
-kikplate hello
-kikplate help
+kik hello
+kik help
 ```
 
 ## Run
@@ -24,8 +24,8 @@ go run . --help
 ## Build
 
 ```bash
-go build -o kikplate .
-./kikplate --help
+go build -o kik .
+./kik --help
 ```
 
 ## Commands

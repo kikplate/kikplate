@@ -1,12 +1,12 @@
 version: 2
 
-project_name: kikplate
+project_name: kik
 
 builds:
   - id: cli
     dir: cli
     main: .
-    binary: kikplate
+    binary: kik
     env:
       - CGO_ENABLED=0
     goos:
@@ -18,7 +18,7 @@ builds:
   - id: cli-windows
     dir: cli
     main: .
-    binary: kikplate
+    binary: kik
     env:
       - CGO_ENABLED=0
     goos:
@@ -31,25 +31,25 @@ archives:
     ids:
       - cli
     formats: [tar.gz]
-    name_template: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    name_template: "kik-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
   - id: cli-windows-archives
     ids:
       - cli-windows
     formats: [zip]
-    name_template: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    name_template: "kik-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
 
 checksum:
   name_template: checksums.txt
   algorithm: sha256
 
 brews:
-  - name: kikplate
+  - name: kik
     ids:
       - cli-unix-archives
     url_template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     repository:
       owner: kikplate
-      name: homebrew-kikplate
+      name: homebrew-kik
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     commit_author:
@@ -61,12 +61,12 @@ brews:
     license: "Apache-2.0"
 
 scoops:
-  - name: kikplate
+  - name: kik
     ids:
       - cli-windows-archives
     repository:
       owner: kikplate
-      name: scoop-bucket
+      name: scoop-kik
       branch: main
       token: "{{ .Env.SCOOP_BUCKET_GITHUB_TOKEN }}"
     commit_author:
