@@ -1,7 +1,6 @@
-# Release Candidate Notes: pre-release vs main
+# Release Notes: v0.18.0
 
-**Base:** main (v0.17.0)
-**Target:** pre-release (HEAD)
+**Previous:** v0.17.0
 **Summary:** 132 files changed, 5232 insertions(+), 284 deletions(-)
 
 ## Major Features
