@@ -7,14 +7,14 @@ The Kikplate CLI (`kik`) is a standalone Go binary that lets you browse, submit,
 ### macOS/Linux via Homebrew tap
 
 ```
-brew tap kikplate/kik
-brew install kik
+brew tap kikplate/homebrew-kikplate
+brew install --cask kik
 ```
 
 ### Windows via Scoop (alternative)
 
 ```
-scoop bucket add kikplate https://github.com/kikplate/scoop-kik.git
+scoop bucket add kikplate https://github.com/kikplate/scoop-bucket.git
 scoop install kik
 ```
 

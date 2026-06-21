@@ -9,7 +9,7 @@ interface Props {
 
 export function AccountStats({ stats }: Props) {
   return (
-    <div className="flex w-fit border border-border bg-card">
+    <div className="grid w-full grid-cols-2 border border-border bg-card sm:flex sm:w-fit">
       {stats.map((s, i) => (
         <div
           key={s.label}

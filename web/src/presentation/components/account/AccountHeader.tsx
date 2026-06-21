@@ -26,8 +26,8 @@ export function AccountHeader({ me, onLogout }: Props) {
 
   return (
     <>
-      <div className="flex items-start justify-between gap-6">
-        <div className="flex items-center gap-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
           <div className="relative flex h-16 w-16 shrink-0 items-center justify-center border border-border bg-card text-xl font-bold text-foreground overflow-hidden">
             {me.avatar_url ? (
               <Image
@@ -43,8 +43,8 @@ export function AccountHeader({ me, onLogout }: Props) {
             )}
           </div>
 
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{displayName}</h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl font-bold text-foreground">{displayName}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               {me.email && <span>{me.email}</span>}
               {me.email && <span>·</span>}
@@ -61,7 +61,7 @@ export function AccountHeader({ me, onLogout }: Props) {
 
         <button
           onClick={() => setLogoutDialogOpen(true)}
-          className="flex shrink-0 items-center gap-1.5 border border-border px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
+          className="flex w-full shrink-0 items-center justify-center gap-1.5 border border-border px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive sm:w-auto"
         >
           <LogOut className="h-3.5 w-3.5" />
           Sign out

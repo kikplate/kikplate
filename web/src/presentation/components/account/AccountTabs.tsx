@@ -18,12 +18,12 @@ const TABS: { id: AccountTab; label: string; icon: React.ReactNode }[] = [
 
 export function AccountTabs({ active, onChange }: Props) {
   return (
-    <div className="flex gap-0">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-1 py-2 sm:flex sm:gap-0 sm:py-0">
       {TABS.map((t) => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
-          className={`flex items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+          className={`flex items-center justify-center gap-1.5 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:justify-start sm:px-4 ${
             active === t.id
               ? "border-foreground text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"

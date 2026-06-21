@@ -80,7 +80,7 @@ POST /plates/repository
 Or using the CLI:
 
 ```
-kikplate submit https://github.com/myorg/my-template
+kik submit https://github.com/myorg/my-template
 ```
 
 When a plate is submitted, Kikplate:
@@ -103,7 +103,7 @@ POST /plates/{id}/verify
 Or using the CLI:
 
 ```
-kikplate verify myorg/my-template
+kik verify myorg/my-template
 ```
 
 Kikplate re-fetches `plate.yaml` and checks that the token in the file matches the one stored in the database. If they match, the plate transitions to `status=approved`, `visibility=public`, `is_verified=true`.
@@ -165,8 +165,8 @@ All three modes resolve to an `account` record on the first login, which becomes
 Once you have found a plate you want to use, scaffold a new project from it:
 
 ```
-kikplate plates add myorg/my-template
-kikplate scaffold myorg/my-template my-new-project
+kik plates add myorg/my-template
+kik scaffold myorg/my-template my-new-project
 ```
 
 The CLI:
@@ -180,7 +180,7 @@ The CLI:
 You can also scaffold directly to a remote Git repository:
 
 ```
-kikplate scaffold myorg/my-template https://github.com/you/new-repo.git
+kik scaffold myorg/my-template https://github.com/you/new-repo.git
 ```
 
 This creates a clean initial commit and pushes to the remote.

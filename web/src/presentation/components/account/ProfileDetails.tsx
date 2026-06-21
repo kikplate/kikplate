@@ -100,9 +100,9 @@ export function ProfileDetails({ me }: { me: MeResult }) {
           </p>
           <div className="divide-y divide-border border border-border">
             {rows.map((row) => (
-              <div key={row.label} className="flex items-center justify-between bg-card px-4 py-3">
-                <span className="w-32 shrink-0 text-xs text-muted-foreground">{row.label}</span>
-                <div className="flex min-w-0 items-center gap-2">
+              <div key={row.label} className="flex flex-col gap-2 bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <span className="shrink-0 text-xs text-muted-foreground sm:w-32">{row.label}</span>
+                <div className="flex min-w-0 items-center gap-2 self-start sm:self-auto">
                   {row.value}
                   {row.copyable && <CopyButton value={row.copyable} />}
                 </div>
@@ -111,17 +111,17 @@ export function ProfileDetails({ me }: { me: MeResult }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
             onClick={() => setEditOpen(true)}
-            className="flex items-center gap-1.5 h-8 px-3 text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex h-8 w-full items-center justify-center gap-1.5 px-3 text-xs border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:w-auto"
           >
             <Pencil className="h-3 w-3" />
             Edit profile
           </button>
           <button
             onClick={() => setDeleteOpen(true)}
-            className="flex items-center gap-1.5 h-8 px-3 text-xs border border-destructive/40 text-destructive/70 hover:text-destructive hover:border-destructive hover:bg-destructive/5 transition-colors"
+            className="flex h-8 w-full items-center justify-center gap-1.5 px-3 text-xs border border-destructive/40 text-destructive/70 transition-colors hover:border-destructive hover:bg-destructive/5 hover:text-destructive sm:w-auto"
           >
             <Trash2 className="h-3 w-3" />
             Delete account

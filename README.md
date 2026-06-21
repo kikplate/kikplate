@@ -30,7 +30,7 @@
 | **Continuous sync** | The background sync worker periodically re-reads each approved plate's `plate.yaml`, updating metadata and catching drift or revocation automatically. |
 | **Organizations** | Plates can be scoped to an organization, enabling teams and companies to maintain shared template catalogs under a single namespace. |
 | **Badges** | Admins award badges (community, verified, official, sponsored) to signal quality and curation level. |
-| **CLI** | The `kikplate` CLI handles authentication, searching, describing, and scaffolding templates without touching a browser. |
+| **CLI** | The `kik` CLI handles authentication, searching, describing, and scaffolding templates without touching a browser. |
 
 ---
 
@@ -59,33 +59,33 @@ Install the CLI to interact from a terminal.
 
 ```sh
 brew tap kikplate/homebrew-kikplate
-brew install kikplate
+brew install --cask kik
 ```
 
 ### Windows via Scoop
 
 ```powershell
 scoop bucket add kikplate https://github.com/kikplate/scoop-bucket.git
-scoop install kikplate
+scoop install kik
 ```
 
 ### Manual install from release archives (all platforms)
 
 ```sh
 # Linux/macOS
-tar -xzf kikplate-<version>-linux-amd64.tar.gz
-sudo install kikplate-<version>-linux-amd64 /usr/local/bin/kikplate
+tar -xzf kik-<version>-linux-amd64.tar.gz
+sudo install kik-<version>-linux-amd64 /usr/local/bin/kik
 
 # macOS example
-tar -xzf kikplate-<version>-darwin-arm64.tar.gz
-sudo install kikplate-<version>-darwin-arm64 /usr/local/bin/kikplate
+tar -xzf kik-<version>-darwin-arm64.tar.gz
+sudo install kik-<version>-darwin-arm64 /usr/local/bin/kik
 ```
 
 ```powershell
 # Windows (PowerShell)
-Expand-Archive .\kikplate-<version>-windows-amd64.zip -DestinationPath .
-Move-Item .\kikplate-<version>-windows-amd64.exe kikplate.exe
-# Add the folder containing kikplate.exe to PATH
+Expand-Archive .\kik-<version>-windows-amd64.zip -DestinationPath .
+Move-Item .\kik-<version>-windows-amd64.exe kik.exe
+# Add the folder containing kik.exe to PATH
 ```
 
 ### Build from source
@@ -97,10 +97,10 @@ go install github.com/kikplate/kikplate/cli@latest
 Quick sanity check:
 
 ```sh
-kikplate --help
-kikplate config init
-kikplate login
-kikplate search --category backend
+kik --help
+kik config init
+kik login
+kik search --category backend
 ```
 
 ---
@@ -114,7 +114,7 @@ kikplate search --category backend
 | [Architecture](docs/architecture.md) | Component map, layers, HTTP surface, DI modules, data flow diagrams |
 | [Database](docs/database.md) | Schema reference, table definitions, entity relationships |
 | [Configuration](docs/configuration.md) | All config file keys and environment variable overrides |
-| [CLI Reference](docs/cli.md) | Full reference for every `kikplate` command with flags and examples |
+| [CLI Reference](docs/cli.md) | Full reference for every `kik` command with flags and examples |
 | [Kubernetes](docs/kubernetes.md) | Deploying to Kubernetes with `kubectl apply -k`, secrets, ingress, scaling |
 | [Helm](docs/helm.md) | Helm chart install, upgrade, full values reference, production example |
 | [Contributing](docs/contributing.md) | Repo structure, branching, commit conventions, adding endpoints, PR process, release flow |

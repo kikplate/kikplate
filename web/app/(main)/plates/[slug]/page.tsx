@@ -198,7 +198,7 @@ export default async function PlateDetailPage({ params }: Props) {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background">
         <div className="container mx-auto px-4 pt-6">
-          <div className="mb-5 flex items-center justify-between gap-4">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <Link
               href="/explore"
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -206,16 +206,18 @@ export default async function PlateDetailPage({ params }: Props) {
               <ArrowLeft className="h-3.5 w-3.5" />
               Back to explore
             </Link>
-            <div className="hidden sm:flex gap-3">
+            <div className="grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto">
               <BookmarkButtonClient
                 plateId={plate.id}
                 isBookmarked={plate.is_bookmarked}
+                className="w-full sm:w-auto"
               />
               <UseButtonClient
                 plateId={plate.id}
                 slug={plate.slug}
                 repoUrl={plate.repo_url}
                 generateCommand={generateCommand}
+                className="w-full sm:w-auto"
               />
             </div>
           </div>
@@ -448,20 +450,6 @@ export default async function PlateDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="fixed inset-x-4 bottom-4 z-40 space-y-2 sm:hidden">
-        <UseButtonClient
-          plateId={plate.id}
-          slug={plate.slug}
-          repoUrl={plate.repo_url}
-          generateCommand={generateCommand}
-          prominent
-        />
-        <BookmarkButtonClient
-          plateId={plate.id}
-          isBookmarked={plate.is_bookmarked}
-          className="w-full"
-        />
-      </div>
     </div>
   )
 }
