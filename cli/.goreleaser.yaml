@@ -83,3 +83,4 @@ release:
   disable: false
   name_template: "{{ .Tag }}"
   mode: keep-existing
+  replace_existing_artifacts: true
