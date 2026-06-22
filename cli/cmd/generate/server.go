@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/kickplate/cli/internal/config"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 func resolveAddr(cmd *cobra.Command) (string, string, error) {
@@ -49,7 +49,7 @@ func fetchServerSchema(cmd *cobra.Command, slug string) (*plateYAML, error) {
 	}
 
 	var schema plateYAML
-	if err := yaml.NewDecoder(resp.Body).Decode(&schema); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&schema); err != nil {
 		return nil, fmt.Errorf("cannot parse schema response: %w", err)
 	}
 	return &schema, nil
